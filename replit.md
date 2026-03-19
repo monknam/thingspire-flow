@@ -1,8 +1,9 @@
-# Workspace
+# Thingspire Flow
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+Thingspire Flow Phase 1 - 조직문화 설문 + 데이터 기반 대시보드 플랫폼.
+An organizational culture survey and analytics platform for Korean companies.
 
 ## Stack
 
@@ -10,87 +11,80 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Node.js version**: 24
 - **Package manager**: pnpm
 - **TypeScript version**: 5.9
-- **API framework**: Express 5
+- **Frontend**: React + Vite (artifacts/thingspire-flow)
+- **API framework**: Express 5 (artifacts/api-server)
 - **Database**: PostgreSQL + Drizzle ORM
+- **Auth**: Session-based (express-session + connect-pg-simple), SHA-256 password hashing
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Frontend state**: TanStack React Query + generated hooks
 
 ## Structure
 
 ```text
 artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
+├── artifacts/
+│   ├── api-server/         # Express API server
+│   └── thingspire-flow/    # React + Vite frontend (preview at /)
+├── lib/
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
 │   ├── api-zod/            # Generated Zod schemas from OpenAPI
 │   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+└── scripts/                # Utility scripts
 ```
 
-## TypeScript & Composite Projects
+## Database Schema
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+Tables:
+- `departments` - Organizational departments (hierarchical support)
+- `users` - System users with roles (admin/leader/member)
+- `survey_cycles` - Survey campaigns with intro content
+- `survey_sections` - Sections within a survey
+- `survey_questions` - Questions (likert_5, short_text, long_text)
+- `survey_responses` - Per-user response tracking
+- `survey_answers` - Individual question answers
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+## User Roles
 
-## Root Scripts
+- **admin** (email: admin@thingspire.com / password: admin1234): Full access, create surveys, view all data
+- **leader** (email: leader@thingspire.com / password: member1234): Team results, partial management
+- **member** (email: member1@thingspire.com / password: member1234): Survey responses only
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+## Features (Phase 1)
 
-## Packages
+- Session-based login (ready for Microsoft OAuth migration)
+- Survey lifecycle: draft → active → closed
+- Multi-step survey UX: intro page → section-by-section → submit
+- Draft save (auto-save) and final submit
+- Admin dashboard: response rates, section scores, charts
+- Department management
+- User management with role assignment
+- Anonymity policy (5-person minimum threshold)
 
-### `artifacts/api-server` (`@workspace/api-server`)
+## API Routes
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
+All routes at `/api`:
+- `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`
+- `GET/POST /departments`, `PATCH /departments/:id`
+- `GET/PATCH /users/:id`, `GET /users`
+- `GET/POST /surveys`, `GET/PATCH /surveys/:id`
+- `POST /surveys/:id/activate`, `POST /surveys/:id/close`
+- `GET/POST /surveys/:surveyId/sections`
+- `GET/POST /sections/:sectionId/questions`
+- `GET /surveys/:surveyId/my-response`, `POST /surveys/:surveyId/responses/start`
+- `PUT /responses/:responseId/answers`, `POST /responses/:responseId/submit`
+- `GET /dashboard/overview`, `GET /dashboard/surveys/:surveyId`
 
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+## Development Notes
 
-### `lib/db` (`@workspace/db`)
+- Run codegen after OpenAPI spec changes: `pnpm --filter @workspace/api-spec run codegen`
+- Push DB schema: `pnpm --filter @workspace/db run push`
+- Dev server: workflows auto-start for both api-server and thingspire-flow
+- Cookies require credentials:true in fetch for session auth to work cross-origin
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+## Future Phases
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
-
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
-
-### `lib/api-spec` (`@workspace/api-spec`)
-
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
-
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+- Phase 2: 다면평가 (peer reviews), 성과평가 (performance reviews)
+- Phase 3: AI analysis, natural language queries on aggregated data
+- Microsoft Entra ID OAuth integration (structure is ready)
