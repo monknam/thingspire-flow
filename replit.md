@@ -44,6 +44,7 @@ Tables:
 - `survey_questions` - Questions (likert_5, short_text, long_text)
 - `survey_responses` - Per-user response tracking
 - `survey_answers` - Individual question answers
+- `action_items` - Action items linked to survey cycles (category/priority/status)
 
 ## User Roles
 
@@ -57,7 +58,7 @@ Tables:
 - Survey lifecycle: draft → active → closed
 - Multi-step survey UX: intro page → section-by-section → submit
 - Draft save (auto-save) and final submit
-- Admin dashboard: response rates, section scores, charts
+- Admin 5-tab results dashboard: A) 진단 요약 (response rate, composite indices, strengths/risks radar), B) 조직 건강 진단 (section + question deep-dive with top/bottom highlights), C) 조직별 비교 (department response rates with anonymity protection), D) 정성 분석 (text responses grouped by question, safe only when ≥5 respondents), E) 액션 플래너 (CRUD action items by category)
 - Department management
 - User management with role assignment
 - Anonymity policy (5-person minimum threshold)
@@ -75,6 +76,8 @@ All routes at `/api`:
 - `GET /surveys/:surveyId/my-response`, `POST /surveys/:surveyId/responses/start`
 - `PUT /responses/:responseId/answers`, `POST /responses/:responseId/submit`
 - `GET /dashboard/overview`, `GET /dashboard/surveys/:surveyId`
+- `GET /dashboard/surveys/:surveyId/qualitative` — text/long_text answer collection (anonymous threshold)
+- `GET/POST /dashboard/action-items`, `PATCH/DELETE /dashboard/action-items/:id` — action item CRUD
 
 ## Development Notes
 
