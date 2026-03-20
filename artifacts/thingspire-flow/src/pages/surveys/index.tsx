@@ -3,7 +3,7 @@ import { Shell } from "@/components/layout/Shell";
 import { useGetSurveys } from "@workspace/api-client-react";
 import { formatDate } from "@/lib/utils";
 import { Link } from "wouter";
-import { ClipboardList, Calendar, CheckCircle2, ArrowRight } from "lucide-react";
+import { ClipboardList, Calendar, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function SurveyList() {
@@ -14,69 +14,63 @@ export default function SurveyList() {
 
   return (
     <Shell>
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
-            <div className="p-2.5 bg-primary/10 text-primary rounded-xl">
-              <ClipboardList className="w-6 h-6" />
+          <h1 className="text-2xl font-bold text-[hsl(var(--neutral-900))] flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[hsl(var(--primary-50))] text-[hsl(var(--primary-400))] flex items-center justify-center">
+              <ClipboardList className="w-4 h-4" />
             </div>
             조직문화 설문
           </h1>
-          <p className="text-slate-500 mt-2 ml-14">현재 진행 중이거나 완료된 설문 목록입니다.</p>
+          <p className="text-[hsl(var(--neutral-500))] text-sm mt-2 ml-10">참여 가능하거나 완료된 설문 목록입니다.</p>
         </div>
 
+        {/* List */}
         {isLoading ? (
-          <div className="space-y-4 animate-pulse">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-24 bg-slate-100 rounded-2xl w-full"></div>
+          <div className="space-y-3 animate-pulse">
+            {[1, 2].map(i => (
+              <div key={i} className="h-24 bg-[hsl(var(--neutral-200))] rounded-xl"></div>
             ))}
           </div>
-        ) : surveys?.length === 0 ? (
-          <div className="text-center p-12 glass-card rounded-3xl">
-            <ClipboardList className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-900">참여 가능한 설문이 없습니다.</h3>
-            <p className="text-slate-500 mt-1">새로운 설문이 시작되면 알려드릴게요.</p>
+        ) : !surveys || surveys.length === 0 ? (
+          <div className="ts-card p-14 flex flex-col items-center justify-center text-center">
+            <ClipboardList className="w-14 h-14 text-[hsl(var(--neutral-300))] mb-4" />
+            <h3 className="font-semibold text-[hsl(var(--neutral-700))]">참여 가능한 설문이 없습니다.</h3>
+            <p className="text-[hsl(var(--neutral-500))] text-sm mt-1">새로운 설문이 시작되면 이곳에 표시됩니다.</p>
           </div>
         ) : (
-          <div className="grid gap-4">
-            {surveys?.map((survey, index) => (
+          <div className="space-y-3">
+            {surveys.map((survey, index) => (
               <motion.div
                 key={survey.id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.08 }}
               >
                 <Link href={`/surveys/${survey.id}/intro`} className="block">
-                  <div className="glass-card p-6 rounded-2xl hover:border-primary/40 hover:shadow-lg transition-all duration-300 group cursor-pointer">
+                  <div className="ts-card p-6 hover:border-[hsl(var(--primary-300))] hover:shadow-md transition-all duration-200 group cursor-pointer">
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                      
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                            survey.status === 'active' ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200' :
-                            survey.status === 'closed' ? 'bg-slate-100 text-slate-600' : 'bg-amber-100 text-amber-700'
-                          }`}>
-                            {survey.status === 'active' ? '진행중' : survey.status === 'closed' ? '종료' : survey.status}
-                          </span>
-                          <span className="text-sm font-medium text-slate-500 flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {survey.year} {survey.quarter && `Q${survey.quarter}`}
+                          <StatusBadge status={survey.status} />
+                          <span className="text-xs text-[hsl(var(--neutral-500))] flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {survey.year}{survey.quarter && ` Q${survey.quarter}`}
                           </span>
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors">{survey.title}</h2>
+                        <h2 className="font-bold text-[hsl(var(--neutral-900))] group-hover:text-[hsl(var(--primary-400))] transition-colors">
+                          {survey.title}
+                        </h2>
                         {survey.startAt && survey.endAt && (
-                          <p className="text-sm text-slate-500">
+                          <p className="text-xs text-[hsl(var(--neutral-400))]">
                             {formatDate(survey.startAt)} ~ {formatDate(survey.endAt)}
                           </p>
                         )}
                       </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-50 group-hover:bg-primary/10 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
-                          <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-                        </div>
+                      <div className="w-9 h-9 rounded-lg bg-[hsl(var(--neutral-100))] group-hover:bg-[hsl(var(--primary-400))] flex items-center justify-center text-[hsl(var(--neutral-400))] group-hover:text-white transition-colors shrink-0">
+                        <ArrowRight className="w-4 h-4" />
                       </div>
-
                     </div>
                   </div>
                 </Link>
@@ -86,5 +80,19 @@ export default function SurveyList() {
         )}
       </div>
     </Shell>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    active: "bg-[hsl(142_76%_36%/0.1)] text-[hsl(var(--green-500))]",
+    draft:  "bg-[hsl(var(--neutral-100))] text-[hsl(var(--neutral-600))]",
+    closed: "bg-[hsl(207_90%_54%/0.1)] text-[hsl(var(--blue-400))]",
+  };
+  const labels: Record<string, string> = { active: "진행중", draft: "준비중", closed: "종료됨" };
+  return (
+    <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${styles[status] || styles.draft}`}>
+      {labels[status] || status}
+    </span>
   );
 }

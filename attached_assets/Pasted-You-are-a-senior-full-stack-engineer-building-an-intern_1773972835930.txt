@@ -1,0 +1,234 @@
+You are a senior full-stack engineer building an internal HR/Org management tool called "Thingspire Flow".
+
+Build Phase 1: Organizational Culture Survey System.
+
+This system must prioritize:
+1. Absolute anonymity
+2. Organizational diagnosis (NOT evaluation)
+3. Actionable insights for leadership
+
+Target users:
+- 30 employees
+- Mostly IT planners/developers
+- Organization is currently going through major changes
+
+---
+
+# CORE FEATURES
+
+## 1. Authentication
+- Use Microsoft OAuth (Outlook / Azure AD login)
+- Only allow company domain users
+- Store user basic info:
+  - id
+  - email
+  - name
+  - organization (team)
+  - role (admin / user)
+
+IMPORTANT:
+- Survey responses must NOT be directly tied to user identity
+- Store responses with anonymized tokens
+
+---
+
+## 2. Survey System
+
+### Survey Type:
+"2026 Q1 Organizational Culture Survey"
+
+### Survey Intro Page (REQUIRED UI)
+Must clearly show:
+
+- Purpose: organizational diagnosis, not evaluation
+- Strong anonymity guarantee
+- This survey is NOT used for performance review
+- Culture is co-created by employees
+
+---
+
+## 3. Survey Structure
+
+Use 7 sections:
+
+1. Direction & Strategy
+2. Execution
+3. Collaboration
+4. Engagement & Motivation
+5. Organizational Health
+6. Team Climate & Psychological Safety
+7. Work Environment & Systems
+
+---
+
+## 4. Question Format
+
+Use 5-point Likert scale:
+
+5 = Strongly Agree  
+4 = Agree  
+3 = Neutral  
+2 = Disagree  
+1 = Strongly Disagree  
+
+---
+
+## 5. Questions (IMPORTANT: USE EXACT TEXT)
+
+### SECTION 1: Direction & Strategy
+
+- I understand the company's direction and strategy.
+- I understand how my work connects to company goals.
+- Our organization is responding effectively to changes.
+- Leadership clearly communicates priorities.
+
+---
+
+### SECTION 2: Execution
+
+- Our team executes work effectively.
+- Decision-making is timely.
+- We focus on solving real problems, not just symptoms.
+- Work priorities are clear.
+
+---
+
+### SECTION 3: Collaboration
+
+- Collaboration between teams works well.
+- Necessary information is shared effectively.
+- There is little blame-shifting between teams.
+- Feedback between teams is timely.
+
+---
+
+### SECTION 4: Engagement & Motivation
+
+- I feel motivated to contribute beyond expectations.
+- I feel proud to work at this company.
+- I would recommend this company to others.
+- My work feels meaningful.
+
+---
+
+### SECTION 5: Organizational Health
+
+- Roles and responsibilities are clearly defined.
+- Processes are well-structured.
+- There is a culture of accountability.
+- Leadership decisions are fair.
+
+---
+
+### SECTION 6: Team Climate
+
+- I feel safe sharing my opinions.
+- I can speak honestly about issues.
+- Team atmosphere is positive.
+- Conflicts are handled constructively.
+
+---
+
+### SECTION 7: Work Environment & Systems
+
+- The tools and systems we use are efficient.
+- I have proper access to necessary systems.
+- Systems support collaboration effectively.
+- Our work environment supports productivity.
+- When issues arise, support is provided.
+
+DO NOT mention specific tools like Outlook or Microsoft.
+
+---
+
+## 6. Open-ended Questions (VERY IMPORTANT)
+
+Include ALL:
+
+1. What are the strongest aspects of our organization?
+2. What is the most serious problem currently?
+3. Provide a specific example of that problem.
+4. What should we change first to improve the organization?
+5. What should leadership (including executives) improve?
+6. What support or changes do you want from management (HR/operations)?
+7. What systems/tools/environment cause inefficiency?
+
+---
+
+## 7. Anonymity Rules (CRITICAL)
+
+- Do NOT show individual responses
+- Only show aggregated data
+- If group size < 5 → hide group data
+- No admin can see individual answers
+
+---
+
+## 8. Dashboard (Admin)
+
+Must include:
+
+- Overall score by section
+- Heatmap (red/yellow/green)
+- Organization-level comparison (if safe)
+- Keyword extraction from open text
+- Top issues summary
+
+---
+
+## 9. UX Requirements
+
+- Left sidebar navigation
+- Main content area
+- Survey intro → survey → completion flow
+
+Menu:
+
+- Dashboard
+- Surveys
+- Results
+
+---
+
+## 10. Tech Stack (Replit friendly)
+
+- Frontend: React (or Next.js)
+- Backend: Node.js / Express
+- DB: PostgreSQL
+- Auth: Microsoft OAuth
+
+---
+
+## 11. Data Design
+
+Tables:
+
+users
+organizations
+surveys
+questions
+responses (anonymous)
+response_groups (aggregated)
+
+---
+
+## 12. Future-ready (IMPORTANT)
+
+- Design schema for future:
+  - 360 review
+  - performance management
+  - AI insights
+
+---
+
+# OUTPUT
+
+Generate:
+
+1. Project structure
+2. DB schema
+3. API design
+4. Basic UI pages
+5. Survey rendering logic
+
+Focus on clean, scalable architecture.
