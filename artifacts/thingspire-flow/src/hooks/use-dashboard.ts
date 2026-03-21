@@ -95,6 +95,62 @@ export function useQualitative(surveyId: string | null) {
   });
 }
 
+// ── Group Comparison Types ─────────────────────────────
+export interface GroupSectionData {
+  sectionId: string;
+  sectionName: string;
+  avgScore: number | null;
+}
+
+export interface GroupData {
+  count: number;
+  safe: boolean;
+  sections: GroupSectionData[];
+}
+
+export interface GroupComparisonData {
+  groups: Record<string, GroupData>;
+  minRequired: number;
+}
+
+export const GROUP_LABELS: Record<string, string> = { dev: "개발 직군", non_dev: "비개발 직군", management: "경영지원" };
+export const GROUP_COLORS: Record<string, string> = { dev: "hsl(207 90% 54%)", non_dev: "hsl(142 76% 36%)", management: "hsl(38 92% 50%)" };
+
+export function useGroupComparison(surveyId: string | null) {
+  return useQuery<GroupComparisonData>({
+    queryKey: ["dashboard", "group-comparison", surveyId],
+    queryFn: () => apiFetch(`/dashboard/surveys/${surveyId}/group-comparison`),
+    enabled: !!surveyId,
+    staleTime: 30_000,
+  });
+}
+
+// ── Qualitative Theme Mapping ──────────────────────────
+export interface QualitativeTheme {
+  id: string;
+  label: string;
+  description: string;
+  questions: QualitativeQuestion[];
+  icon: string;
+}
+
+export const QUALITATIVE_THEME_MAP: Array<{ qNos: number[]; id: string; label: string; description: string; icon: string }> = [
+  { qNos: [46], id: "strength", label: "강점", description: "구성원이 공통으로 인식하는 조직의 강점", icon: "✅" },
+  { qNos: [47, 48], id: "problem", label: "핵심 문제", description: "가장 심각하게 인식되는 조직 문제와 구체적 사례", icon: "⚠️" },
+  { qNos: [49], id: "improvement", label: "개선 우선과제", description: "가장 먼저 바꿔야 할 것에 대한 구성원의 견해", icon: "🔧" },
+  { qNos: [50], id: "leadership", label: "리더십 피드백", description: "리더십(팀장/임원/대표)에 대한 개선 요청", icon: "👔" },
+  { qNos: [51], id: "mgmt_request", label: "경영관리실 요청", description: "경영관리실(HR/운영)에 대한 구체적 요청", icon: "🏢" },
+  { qNos: [52, 53], id: "system", label: "시스템 / 도구 / 환경", description: "불편하거나 개선이 필요한 업무 도구 및 환경", icon: "💻" },
+  { qNos: [54], id: "open", label: "자유 의견", description: "추가로 전하고 싶은 자유로운 의견", icon: "💬" },
+];
+
+export function groupQualitativeByTheme(questions: QualitativeQuestion[]): QualitativeTheme[] {
+  return QUALITATIVE_THEME_MAP.map((themeMap) => {
+    const qs = questions.filter((q) => q.questionNo !== null && themeMap.qNos.includes(q.questionNo));
+    return { ...themeMap, questions: qs };
+  }).filter((t) => t.questions.length > 0);
+}
+
 export function useActionItems(surveyId: string | null) {
   return useQuery<ActionItem[]>({
     queryKey: ["action-items", surveyId],

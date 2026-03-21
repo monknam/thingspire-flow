@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { db, usersTable, departmentsTable } from "@workspace/db";
+import { db, usersTable, profilesTable, departmentsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
 export interface SessionUser {
@@ -22,7 +22,34 @@ export async function getCurrentUser(req: Request): Promise<SessionUser | null> 
   const userId = req.session?.userId;
   if (!userId) return null;
 
-  const result = await db
+  const profileResult = await db
+    .select({
+      id: profilesTable.id,
+      email: profilesTable.email,
+      fullName: profilesTable.fullName,
+      role: profilesTable.role,
+      departmentId: profilesTable.departmentId,
+      departmentName: departmentsTable.name,
+      isSystemAdmin: profilesTable.isSystemAdmin,
+    })
+    .from(profilesTable)
+    .leftJoin(departmentsTable, eq(profilesTable.departmentId, departmentsTable.id))
+    .where(eq(profilesTable.id, userId))
+    .limit(1);
+
+  if (profileResult[0]) {
+    return {
+      id: profileResult[0].id,
+      email: profileResult[0].email ?? "",
+      fullName: profileResult[0].fullName,
+      role: profileResult[0].role as "admin" | "leader" | "member",
+      departmentId: profileResult[0].departmentId,
+      departmentName: profileResult[0].departmentName ?? null,
+      isSystemAdmin: profileResult[0].isSystemAdmin,
+    };
+  }
+
+  const userResult = await db
     .select({
       id: usersTable.id,
       email: usersTable.email,
@@ -37,16 +64,16 @@ export async function getCurrentUser(req: Request): Promise<SessionUser | null> 
     .where(eq(usersTable.id, userId))
     .limit(1);
 
-  if (!result[0]) return null;
+  if (!userResult[0]) return null;
 
   return {
-    id: result[0].id,
-    email: result[0].email,
-    fullName: result[0].fullName,
-    role: result[0].role as "admin" | "leader" | "member",
-    departmentId: result[0].departmentId,
-    departmentName: result[0].departmentName ?? null,
-    isSystemAdmin: result[0].isSystemAdmin,
+    id: userResult[0].id,
+    email: userResult[0].email,
+    fullName: userResult[0].fullName,
+    role: userResult[0].role as "admin" | "leader" | "member",
+    departmentId: userResult[0].departmentId,
+    departmentName: userResult[0].departmentName ?? null,
+    isSystemAdmin: userResult[0].isSystemAdmin,
   };
 }
 

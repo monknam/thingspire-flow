@@ -137,6 +137,64 @@ router.get("/surveys/:surveyId", async (req, res) => {
   res.json({ survey: { id: survey.id, title: survey.title, description: survey.description, year: survey.year, quarter: survey.quarter, status: survey.status, startAt: survey.startAt, endAt: survey.endAt, anonymousMinCount: survey.anonymousMinCount }, overallResponseRate, submittedCount, totalEligible, departmentStats, sectionResults });
 });
 
+// ── Group Comparison (개발 vs 비개발) ─────────────────────
+router.get("/surveys/:surveyId/group-comparison", async (req, res) => {
+  const user = await getCurrentUser(req);
+  if (!user) return res.status(401).json({ error: "Unauthorized" });
+  if (user.role !== "admin" && user.role !== "leader") return res.status(403).json({ error: "Admin or leader only" });
+
+  const { surveyId } = req.params;
+  const [surveyCheck] = await db.select({ id: surveyCyclesTable.id, anonymousMinCount: surveyCyclesTable.anonymousMinCount })
+    .from(surveyCyclesTable).where(eq(surveyCyclesTable.id, surveyId)).limit(1);
+  if (!surveyCheck) return res.status(404).json({ error: "Survey not found" });
+
+  const GROUPS = ["dev", "non_dev", "management"] as const;
+  const GROUP_MIN = 3;
+
+  const groupResults: Record<string, { count: number; safe: boolean; sections: Array<{ sectionId: string; sectionName: string; avgScore: number | null }> }> = {};
+
+  for (const group of GROUPS) {
+    const submittedInGroup = await db
+      .select({ count: count() })
+      .from(surveyResponsesTable)
+      .innerJoin(usersTable, eq(surveyResponsesTable.respondentUserId, usersTable.id))
+      .where(and(eq(surveyResponsesTable.surveyCycleId, surveyId), eq(surveyResponsesTable.isSubmitted, true), eq(usersTable.employeeGroup, group)));
+
+    const groupCount = Number(submittedInGroup[0].count);
+    if (groupCount === 0) continue;
+
+    const safe = groupCount >= GROUP_MIN;
+    const sections = await db.select().from(surveySectionsTable)
+      .where(eq(surveySectionsTable.surveyCycleId, surveyId)).orderBy(surveySectionsTable.sortOrder);
+
+    const sectionData = await Promise.all(sections.map(async (section) => {
+      if (!safe) return { sectionId: section.id, sectionName: section.name, avgScore: null };
+
+      const answers = await db
+        .select({ numericValue: surveyAnswersTable.numericValue })
+        .from(surveyAnswersTable)
+        .innerJoin(surveyResponsesTable, eq(surveyAnswersTable.surveyResponseId, surveyResponsesTable.id))
+        .innerJoin(usersTable, eq(surveyResponsesTable.respondentUserId, usersTable.id))
+        .innerJoin(surveyQuestionsTable, eq(surveyAnswersTable.surveyQuestionId, surveyQuestionsTable.id))
+        .where(and(
+          eq(surveyResponsesTable.surveyCycleId, surveyId),
+          eq(surveyResponsesTable.isSubmitted, true),
+          eq(usersTable.employeeGroup, group),
+          eq(surveyQuestionsTable.surveySectionId, section.id),
+          sql`${surveyAnswersTable.numericValue} IS NOT NULL`
+        ));
+
+      const nums = answers.map((a) => a.numericValue).filter((v): v is number => v !== null);
+      const avg = nums.length > 0 ? Math.round((nums.reduce((a, b) => a + b, 0) / nums.length) * 100) / 100 : null;
+      return { sectionId: section.id, sectionName: section.name, avgScore: avg };
+    }));
+
+    groupResults[group] = { count: groupCount, safe, sections: sectionData };
+  }
+
+  res.json({ groups: groupResults, minRequired: GROUP_MIN });
+});
+
 // ── Qualitative Analysis ───────────────────────────────
 router.get("/surveys/:surveyId/qualitative", async (req, res) => {
   const user = await getCurrentUser(req);
