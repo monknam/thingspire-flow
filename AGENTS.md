@@ -12,6 +12,7 @@ Before making any code or documentation changes, read these files in order:
 2. `project-docs/01_current_goal.md`
 3. `project-docs/02_work_log.md`
 4. `project-docs/03_rules.md`
+5. `project-docs/04_product_vision.md`
 
 If the task is part of the migration, also read:
 
@@ -66,3 +67,4 @@ The current intended direction is:
 - Supabase Auth
 - Supabase Postgres
 - Progressive migration away from Replit-specific runtime assumptions
+- Modular integrated-system product structure where survey is only one module

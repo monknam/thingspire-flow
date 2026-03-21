@@ -155,3 +155,11 @@
   - `artifacts/thingspire-flow/src/components/brand/BrandLogo.tsx`
   - `artifacts/thingspire-flow/src/components/layout/Shell.tsx`
   - `artifacts/thingspire-flow/src/pages/login.tsx`
+- Added a formal product vision document and updated agent/project rules so all future work treats survey as one module inside an integrated HR/organization platform
+  - `project-docs/04_product_vision.md`
+  - `AGENTS.md`
+  - `project-docs/00_project_overview.md`
+  - `project-docs/01_current_goal.md`
+  - `project-docs/03_rules.md`
+- Switched local frontend env from mock auth mode to Supabase mode using the provided project URL and publishable key
+  - `artifacts/thingspire-flow/.env.local`

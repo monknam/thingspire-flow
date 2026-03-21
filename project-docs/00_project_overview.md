@@ -2,7 +2,9 @@
 
 ## Project
 
-Thingspire Flow is an organizational culture survey and analytics platform.
+Thingspire Flow is a modular HR and organizational operations system.
+
+At the current implementation stage, the survey module is the most developed part, but survey is only one functional area inside the larger product.
 
 ## Current Direction
 
@@ -28,11 +30,14 @@ The active migration target is:
 - Do not keep Express session auth
 - Introduce Supabase Auth and a `profiles`-style app user model
 - Reduce Replit-specific runtime assumptions over time
+- Keep product structure modular so future HR modules remain separable
+- Avoid naming or information architecture that frames the whole system as survey-only
 
 ## Core Reference Docs
 
 - `MIGRATION_PLAN.md`
 - `SUPABASE_AUTH_MIGRATION.md`
+- `project-docs/04_product_vision.md`
 
 ## Working Assumption
 

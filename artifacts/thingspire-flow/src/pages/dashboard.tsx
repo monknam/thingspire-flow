@@ -1,9 +1,15 @@
 import { useProtectedRoute } from "@/hooks/use-auth";
 import { Shell } from "@/components/layout/Shell";
 import { useGetDashboardOverview } from "@workspace/api-client-react";
-import { Users, Building2, ClipboardCheck, ArrowRight, BarChart3, AlertTriangle } from "lucide-react";
+import { Users, Building2, ClipboardCheck, ArrowRight, BarChart3, AlertTriangle, Target, Users2, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
+
+const UPCOMING_MODULES = [
+  { label: "360 다면평가", icon: Users2, description: "구성원 간 상호 피드백" },
+  { label: "성과 평가", icon: Award, description: "정기 성과 측정·관리" },
+  { label: "목표 관리 (OKR)", icon: Target, description: "조직 목표 정렬 및 추적" },
+];
 
 export default function Dashboard() {
   const { isAuthorized, user } = useProtectedRoute();
@@ -23,14 +29,14 @@ export default function Dashboard() {
           <div>
             <p className="text-sm font-medium text-[hsl(var(--neutral-500))] mb-1">안녕하세요</p>
             <h1 className="text-2xl md:text-3xl font-bold text-[hsl(var(--neutral-900))]">{user?.fullName}님</h1>
-            <p className="text-[hsl(var(--neutral-500))] mt-1 text-sm">통합 시스템의 기본 화면입니다. 현재 설문 현황을 먼저 보여줍니다.</p>
+            <p className="text-[hsl(var(--neutral-500))] mt-1 text-sm">조직 운영 현황을 한눈에 확인하세요.</p>
           </div>
           {user?.role === 'admin' && (
             <Link
               href="/admin/surveys"
               className="ts-btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm"
             >
-              새 설문 만들기 <ArrowRight className="w-4 h-4" />
+              진단 설문 관리 <ArrowRight className="w-4 h-4" />
             </Link>
           )}
         </motion.div>
@@ -51,22 +57,32 @@ export default function Dashboard() {
         ) : overview ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <StatCard title="진행 중인 설문" value={overview.activeSurveys} icon={ClipboardCheck} accent="primary" delay={0.1} />
+              <StatCard title="총 구성원" value={overview.totalUsers} icon={Users} accent="primary" delay={0.1} />
               <StatCard title="총 부서 수" value={overview.totalDepartments} icon={Building2} accent="secondary" delay={0.2} />
-              <StatCard title="총 구성원" value={overview.totalUsers} icon={Users} accent="neutral" delay={0.3} />
+              <StatCard title="진행 중인 진단" value={overview.activeSurveys} icon={ClipboardCheck} accent="neutral" delay={0.3} />
             </div>
 
-            {/* Recent Surveys */}
+            {/* 조직문화 진단 현황 */}
             <div>
-              <h2 className="text-base font-bold text-[hsl(var(--neutral-900))] mb-4 flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-[hsl(var(--primary-400))]" />
-                설문 기능 현황
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-bold text-[hsl(var(--neutral-900))] flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-[hsl(var(--primary-400))]" />
+                  조직문화 진단 현황
+                </h2>
+                {(user?.role === 'admin' || user?.role === 'leader') && (
+                  <Link
+                    href="/admin/results"
+                    className="text-xs font-medium text-[hsl(var(--primary-400))] hover:underline flex items-center gap-1"
+                  >
+                    결과 분석 보기 <ArrowRight className="w-3 h-3" />
+                  </Link>
+                )}
+              </div>
               <div className="space-y-3">
                 {overview.recentSurveys?.length === 0 ? (
                   <div className="ts-card p-12 flex flex-col items-center justify-center text-center">
                     <ClipboardCheck className="w-12 h-12 text-[hsl(var(--neutral-300))] mb-3" />
-                    <p className="text-[hsl(var(--neutral-500))] text-sm">진행된 설문이 없습니다.</p>
+                    <p className="text-[hsl(var(--neutral-500))] text-sm">진행된 진단이 없습니다.</p>
                   </div>
                 ) : (
                   overview.recentSurveys?.map((survey, i) => (
@@ -103,6 +119,35 @@ export default function Dashboard() {
                     </motion.div>
                   ))
                 )}
+              </div>
+            </div>
+
+            {/* 준비 중 모듈 */}
+            <div>
+              <h2 className="text-base font-bold text-[hsl(var(--neutral-900))] mb-4">
+                준비 중인 모듈
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {UPCOMING_MODULES.map((mod, i) => (
+                  <motion.div
+                    key={mod.label}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + i * 0.07 }}
+                    className="ts-card p-5 flex items-start gap-4 opacity-60"
+                  >
+                    <div className="p-2.5 rounded-lg bg-[hsl(var(--neutral-100))] text-[hsl(var(--neutral-400))] shrink-0">
+                      <mod.icon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[hsl(var(--neutral-700))]">{mod.label}</p>
+                      <p className="text-xs text-[hsl(var(--neutral-500))] mt-0.5">{mod.description}</p>
+                      <span className="mt-2 inline-block text-[10px] font-semibold bg-[hsl(var(--neutral-100))] text-[hsl(var(--neutral-500))] px-2 py-0.5 rounded-full">
+                        준비 중
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </>

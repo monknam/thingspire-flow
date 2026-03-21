@@ -11,6 +11,7 @@ Complete the first migration foundation for Vercel + Supabase.
 3. Create a durable `project-docs` and handoff workflow
 4. Prepare the codebase for later removal of legacy Express auth
 5. Make documentation updates a mandatory end-of-task rule for any agent touching the repo
+6. Reframe the information architecture so the app reads as an integrated system, with survey as one module
 
 ## In Scope Right Now
 
@@ -18,6 +19,7 @@ Complete the first migration foundation for Vercel + Supabase.
 - Supabase client bootstrap
 - Profile schema preparation
 - Migration docs and operating docs
+- Product framing and navigation language needed to avoid treating survey as the whole system
 
 ## Not In Scope Right Now
 

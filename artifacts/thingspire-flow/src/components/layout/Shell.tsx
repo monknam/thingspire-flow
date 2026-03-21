@@ -3,18 +3,36 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import { 
-  LayoutDashboard, 
-  ClipboardList, 
-  Settings, 
-  Users, 
-  Building2, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  ClipboardList,
+  Settings,
+  Users,
+  Users2,
+  Building2,
+  LogOut,
   Menu,
   X,
-  BarChart3
+  BarChart3,
+  Target,
+  Kanban,
+  Award,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  show: boolean;
+  comingSoon?: boolean;
+}
+
+interface NavSection {
+  title?: string;
+  items: NavItem[];
+}
 
 interface ShellProps {
   children: React.ReactNode;
@@ -30,13 +48,36 @@ export function Shell({ children }: ShellProps) {
   const isAdmin = user.role === 'admin';
   const isLeader = user.role === 'admin' || user.role === 'leader';
 
-  const navItems = [
-    { href: "/", label: "대시보드", icon: LayoutDashboard, show: true },
-    { href: "/surveys", label: "조직문화 설문", icon: ClipboardList, show: true },
-    { href: "/admin/results", label: "결과 분석", icon: BarChart3, show: isLeader },
-    { href: "/admin/surveys", label: "설문 관리", icon: Settings, show: isAdmin },
-    { href: "/admin/users", label: "사용자 관리", icon: Users, show: isAdmin },
-    { href: "/admin/departments", label: "조직 관리", icon: Building2, show: isAdmin },
+  const navSections: NavSection[] = [
+    {
+      items: [
+        { href: "/", label: "대시보드", icon: LayoutDashboard, show: true },
+      ],
+    },
+    {
+      title: "진단 & 평가",
+      items: [
+        { href: "/surveys", label: "조직문화 진단", icon: ClipboardList, show: true },
+        { href: "/admin/results", label: "진단 결과 분석", icon: BarChart3, show: isLeader },
+        { href: "#", label: "360 다면평가", icon: Users2, show: true, comingSoon: true },
+        { href: "#", label: "성과 평가", icon: Award, show: true, comingSoon: true },
+      ],
+    },
+    {
+      title: "목표 & 과제",
+      items: [
+        { href: "#", label: "목표 관리 (OKR)", icon: Target, show: true, comingSoon: true },
+        { href: "#", label: "과제 관리", icon: Kanban, show: true, comingSoon: true },
+      ],
+    },
+    {
+      title: "시스템 관리",
+      items: [
+        { href: "/admin/surveys", label: "설문 관리", icon: Settings, show: isAdmin },
+        { href: "/admin/users", label: "사용자 관리", icon: Users, show: isAdmin },
+        { href: "/admin/departments", label: "조직 관리", icon: Building2, show: isAdmin },
+      ],
+    },
   ];
 
   const closeMenu = () => setIsMobileMenuOpen(false);
@@ -51,26 +92,64 @@ export function Shell({ children }: ShellProps) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-4 py-5 overflow-y-auto space-y-1">
-        {navItems.filter(item => item.show).map((item) => {
-          const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={closeMenu}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150",
-                isActive
-                  ? "bg-[hsl(var(--primary-400))] text-white shadow-sm"
-                  : "text-[hsl(var(--neutral-300))] hover:bg-white/10 hover:text-white"
+      <nav className="flex-1 px-4 py-3 overflow-y-auto">
+        {navSections
+          .filter(section => section.items.some(item => item.show))
+          .map((section, si) => (
+            <div key={section.title ?? "__home__"} className={si > 0 ? "mt-1" : ""}>
+              {section.title && (
+                <p className="text-[10px] font-semibold tracking-widest uppercase text-[hsl(var(--neutral-500))] px-4 pt-5 pb-1.5">
+                  {section.title}
+                </p>
               )}
-            >
-              <item.icon className={cn("w-4 h-4 shrink-0", isActive ? "text-white" : "text-[hsl(var(--neutral-400))]")} />
-              {item.label}
-            </Link>
-          );
-        })}
+              <div className="space-y-0.5">
+                {section.items
+                  .filter(item => item.show)
+                  .map((item) => {
+                    if (item.comingSoon) {
+                      return (
+                        <div
+                          key={item.label}
+                          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium opacity-40 cursor-not-allowed select-none"
+                        >
+                          <item.icon className="w-4 h-4 shrink-0 text-[hsl(var(--neutral-400))]" />
+                          <span className="flex-1 text-[hsl(var(--neutral-300))]">{item.label}</span>
+                          <span className="text-[10px] font-semibold bg-white/10 text-white/60 px-1.5 py-0.5 rounded-sm leading-none">
+                            Soon
+                          </span>
+                        </div>
+                      );
+                    }
+
+                    const isActive =
+                      location === item.href ||
+                      (item.href !== "/" && location.startsWith(item.href));
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={closeMenu}
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150",
+                          isActive
+                            ? "bg-[hsl(var(--primary-400))] text-white shadow-sm"
+                            : "text-[hsl(var(--neutral-300))] hover:bg-white/10 hover:text-white"
+                        )}
+                      >
+                        <item.icon
+                          className={cn(
+                            "w-4 h-4 shrink-0",
+                            isActive ? "text-white" : "text-[hsl(var(--neutral-400))]"
+                          )}
+                        />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+              </div>
+            </div>
+          ))}
       </nav>
 
       {/* User + Logout */}
