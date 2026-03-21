@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
+import { hasSupabaseEnv, supabase } from "@/lib/supabase";
 
 export interface LoginRequest {
   email: string;
@@ -28,14 +28,97 @@ export interface AuthUser extends AppProfile {
 
 const AUTH_SESSION_QUERY_KEY = ["auth", "session"] as const;
 const AUTH_USER_QUERY_KEY = ["auth", "user"] as const;
+const LEGACY_AUTH_USER_QUERY_KEY = ["auth", "legacy-user"] as const;
+const DEV_AUTH_STORAGE_KEY = "thingspire.dev-auth-user";
+
+interface LegacyAuthUser {
+  id: string;
+  email: string;
+  fullName: string | null;
+  role: "admin" | "leader" | "member";
+  departmentId: string | null;
+  departmentName: string | null;
+  employmentStatus?: "active" | "inactive" | "leave" | null;
+  employeeGroup?: "dev" | "non_dev" | "management" | null;
+  isSystemAdmin: boolean;
+}
+
+async function legacyFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(path, {
+    credentials: "include",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options?.headers ?? {}),
+    },
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.error || `API error ${response.status}`);
+  }
+
+  return response.json();
+}
+
+function isLocalDevAuthEnabled() {
+  if (typeof window === "undefined") return false;
+  const envEnabled = import.meta.env.VITE_ENABLE_LOCAL_DEV_AUTH === "true";
+  const isLocalhost =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+
+  return import.meta.env.DEV && envEnabled && isLocalhost;
+}
+
+function getStoredDevUser(): AuthUser | null {
+  if (typeof window === "undefined" || !isLocalDevAuthEnabled()) return null;
+
+  const raw = window.localStorage.getItem(DEV_AUTH_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as AuthUser;
+  } catch {
+    window.localStorage.removeItem(DEV_AUTH_STORAGE_KEY);
+    return null;
+  }
+}
+
+function setStoredDevUser(user: AuthUser | null) {
+  if (typeof window === "undefined" || !isLocalDevAuthEnabled()) return;
+
+  if (!user) {
+    window.localStorage.removeItem(DEV_AUTH_STORAGE_KEY);
+    return;
+  }
+
+  window.localStorage.setItem(DEV_AUTH_STORAGE_KEY, JSON.stringify(user));
+}
 
 async function getSession(): Promise<Session | null> {
+  if (!supabase) return null;
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
   return data.session;
 }
 
 async function getProfile(authUser: SupabaseUser): Promise<AuthUser> {
+  if (!supabase) {
+    return {
+      id: authUser.id,
+      email: authUser.email ?? null,
+      fullName: authUser.user_metadata?.full_name ?? null,
+      role: (authUser.user_metadata?.role ?? "member") as AuthUser["role"],
+      departmentId: null,
+      departmentName: null,
+      employmentStatus: null,
+      employeeGroup: null,
+      isSystemAdmin: false,
+      authUser,
+    };
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .select("id, email, full_name, role, department_id, department_name, employment_status, employee_group, is_system_admin")
@@ -81,12 +164,34 @@ async function getCurrentUser(): Promise<AuthUser | null> {
   return getProfile(session.user);
 }
 
+async function getLegacyCurrentUser(): Promise<AuthUser | null> {
+  try {
+    const user = await legacyFetch<LegacyAuthUser>("/api/auth/me");
+    return {
+      ...user,
+      employmentStatus: user.employmentStatus ?? null,
+      employeeGroup: user.employeeGroup ?? null,
+      authUser: {
+        id: user.id,
+        app_metadata: {},
+        user_metadata: {},
+        aud: "legacy",
+        created_at: new Date().toISOString(),
+      } as SupabaseUser,
+    };
+  } catch {
+    return getStoredDevUser();
+  }
+}
+
 export function useAuth() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
+    if (!supabase) return;
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(() => {
@@ -113,15 +218,68 @@ export function useAuth() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const legacyUserQuery = useQuery({
+    queryKey: LEGACY_AUTH_USER_QUERY_KEY,
+    queryFn: getLegacyCurrentUser,
+    enabled: !hasSupabaseEnv,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: LoginRequest) => {
+      if (!hasSupabaseEnv) {
+        try {
+          return await legacyFetch<LegacyAuthUser>("/api/auth/login", {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+          });
+        } catch {
+          if (isLocalDevAuthEnabled() && email === "admin@thingspire.com" && password === "admin1234") {
+            return {
+              id: "dev-admin",
+              email,
+              fullName: "관리자",
+              role: "admin" as const,
+              departmentId: null,
+              departmentName: null,
+              employmentStatus: "active" as const,
+              employeeGroup: "management" as const,
+              isSystemAdmin: true,
+            };
+          }
+
+          throw new Error("백엔드가 실행 중이 아니고 로컬 개발 로그인도 사용할 수 없습니다.");
+        }
+      }
+
+      if (!supabase) {
+        throw new Error("Supabase environment variables are missing. Check artifacts/thingspire-flow/.env.example.");
+      }
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       return data;
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      if (!hasSupabaseEnv) {
+        const legacyUser = data as LegacyAuthUser;
+        setStoredDevUser({
+          ...legacyUser,
+          employmentStatus: legacyUser.employmentStatus ?? null,
+          employeeGroup: legacyUser.employeeGroup ?? null,
+          authUser: {
+            id: legacyUser.id,
+            app_metadata: {},
+            user_metadata: {},
+            aud: "legacy",
+            created_at: new Date().toISOString(),
+          } as SupabaseUser,
+        });
+      }
+
       await queryClient.invalidateQueries({ queryKey: AUTH_SESSION_QUERY_KEY });
       await queryClient.invalidateQueries({ queryKey: AUTH_USER_QUERY_KEY });
+      await queryClient.invalidateQueries({ queryKey: LEGACY_AUTH_USER_QUERY_KEY });
       setLocation("/");
       toast({ title: "로그인 성공", description: "환영합니다." });
     },
@@ -136,12 +294,24 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
+      if (!hasSupabaseEnv) {
+        try {
+          await legacyFetch("/api/auth/logout", { method: "POST" });
+        } catch {
+          // Ignore logout failures to avoid trapping the user in a broken session state.
+        }
+        setStoredDevUser(null);
+        return;
+      }
+
+      if (!supabase) return;
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     },
     onSuccess: async () => {
       queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, null);
       queryClient.setQueryData(AUTH_USER_QUERY_KEY, null);
+      queryClient.setQueryData(LEGACY_AUTH_USER_QUERY_KEY, null);
       setLocation("/login");
       toast({ title: "로그아웃", description: "성공적으로 로그아웃 되었습니다." });
     },
@@ -154,9 +324,11 @@ export function useAuth() {
     },
   });
 
-  const isLoading = sessionQuery.isLoading || (sessionQuery.data?.user ? userQuery.isLoading : false);
-  const user = userQuery.data ?? null;
-  const isAuthenticated = !!sessionQuery.data?.user;
+  const isLoading = hasSupabaseEnv
+    ? sessionQuery.isLoading || (sessionQuery.data?.user ? userQuery.isLoading : false)
+    : legacyUserQuery.isLoading;
+  const user = hasSupabaseEnv ? userQuery.data ?? null : legacyUserQuery.data ?? null;
+  const isAuthenticated = hasSupabaseEnv ? !!sessionQuery.data?.user : !!legacyUserQuery.data;
 
   return {
     user,

@@ -7,9 +7,11 @@ import { Users, Edit2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function UsersAdmin() {
-  const { isAuthorized } = useProtectedRoute(['admin', 'leader']);
+  const { isAuthorized, user: currentUser } = useProtectedRoute(['admin', 'leader']);
   const { data: users, isLoading, refetch } = useGetUsers();
   const { data: departments } = useGetDepartments();
+  const userList = Array.isArray(users) ? users : [];
+  const departmentList = Array.isArray(departments) ? departments : [];
   const updateMutation = useUpdateUser();
   const { toast } = useToast();
 
@@ -39,6 +41,7 @@ export default function UsersAdmin() {
   };
 
   const openEdit = (user: User) => {
+    if (currentUser?.role !== "admin") return;
     setEditingUser(user);
     setFormData({ role: user.role, departmentId: user.departmentId || "" });
     setIsOpen(true);
@@ -65,7 +68,7 @@ export default function UsersAdmin() {
               {isLoading ? (
                 <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">로딩 중...</td></tr>
               ) : (
-                users?.map(user => (
+                userList.map(user => (
                   <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50/50">
                     <td className="px-6 py-4">
                       <div className="font-medium text-slate-900">{user.fullName || '미설정'}</div>
@@ -81,9 +84,13 @@ export default function UsersAdmin() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button onClick={() => openEdit(user)} className="text-slate-400 hover:text-primary p-2">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
+                      {currentUser?.role === "admin" ? (
+                        <button onClick={() => openEdit(user)} className="text-slate-400 hover:text-primary p-2">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <span className="text-xs text-slate-400">조회 전용</span>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -92,7 +99,7 @@ export default function UsersAdmin() {
           </table>
         </div>
 
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={currentUser?.role === "admin" && isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>사용자 권한 설정</DialogTitle>
@@ -118,7 +125,7 @@ export default function UsersAdmin() {
                   className="w-full px-3 py-2 border rounded-md"
                 >
                   <option value="">소속 없음</option>
-                  {departments?.map(d => (
+                  {departmentList.map(d => (
                     <option key={d.id} value={d.id}>{d.name}</option>
                   ))}
                 </select>

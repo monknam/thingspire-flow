@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 export default function DepartmentsAdmin() {
   const { isAuthorized } = useProtectedRoute(['admin']);
   const { data: departments, isLoading, refetch } = useGetDepartments();
+  const departmentList = Array.isArray(departments) ? departments : [];
   const createMutation = useCreateDepartment();
   const updateMutation = useUpdateDepartment();
   const { toast } = useToast();
@@ -106,7 +107,7 @@ export default function DepartmentsAdmin() {
               {isLoading ? (
                 <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">로딩 중...</td></tr>
               ) : (
-                departments?.map(dept => (
+                departmentList.map(dept => (
                   <tr key={dept.id} className="border-b border-slate-100 hover:bg-slate-50/50">
                     <td className="px-6 py-4 font-medium text-slate-900">{dept.name}</td>
                     <td className="px-6 py-4 text-slate-500">{dept.code || '-'}</td>

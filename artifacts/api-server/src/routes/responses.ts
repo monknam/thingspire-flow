@@ -64,7 +64,7 @@ router.put("/:responseId/answers", async (req, res) => {
     }
   }
 
-  res.json({ success: true, message: "Answers saved" });
+  return res.json({ success: true, message: "Answers saved" });
 });
 
 // POST /responses/:responseId/submit
@@ -93,7 +93,7 @@ router.post("/:responseId/submit", async (req, res) => {
     .set({ isSubmitted: true, submittedAt: new Date() })
     .where(eq(surveyResponsesTable.id, responseId));
 
-  res.json({ success: true, message: "Survey submitted successfully" });
+  return res.json({ success: true, message: "Survey submitted successfully" });
 });
 
 export default router;

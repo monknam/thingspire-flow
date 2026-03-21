@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useProtectedRoute } from "@/hooks/use-auth";
 import { Shell } from "@/components/layout/Shell";
-import { useGetSurvey, useUpdateSurvey, useCreateSection, useCreateQuestion, useActivateSurvey, useCloseSurvey } from "@workspace/api-client-react";
+import { useGetSurvey, useUpdateSurvey, useCreateSection, useCreateQuestion, useActivateSurvey, useCloseSurvey, getGetSurveyQueryKey } from "@workspace/api-client-react";
 import { useRoute } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Settings, Plus, GripVertical, PlayCircle, StopCircle } from "lucide-react";
@@ -12,7 +12,7 @@ export default function SurveyEdit() {
   const [, params] = useRoute("/admin/surveys/:id/edit");
   const id = params?.id || "";
   
-  const { data: survey, isLoading, refetch } = useGetSurvey(id, { query: { enabled: !!id } });
+  const { data: survey, isLoading, refetch } = useGetSurvey(id, { query: { enabled: !!id, queryKey: getGetSurveyQueryKey(id) } });
   const updateMutation = useUpdateSurvey();
   const createSectionMutation = useCreateSection();
   const createQuestionMutation = useCreateQuestion();

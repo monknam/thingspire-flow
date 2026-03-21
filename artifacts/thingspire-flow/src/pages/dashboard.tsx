@@ -1,13 +1,13 @@
 import { useProtectedRoute } from "@/hooks/use-auth";
 import { Shell } from "@/components/layout/Shell";
 import { useGetDashboardOverview } from "@workspace/api-client-react";
-import { Users, Building2, ClipboardCheck, ArrowRight, BarChart3 } from "lucide-react";
+import { Users, Building2, ClipboardCheck, ArrowRight, BarChart3, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 
 export default function Dashboard() {
   const { isAuthorized, user } = useProtectedRoute();
-  const { data: overview, isLoading } = useGetDashboardOverview();
+  const { data: overview, isLoading, error } = useGetDashboardOverview();
 
   if (!isAuthorized) return null;
 
@@ -23,11 +23,11 @@ export default function Dashboard() {
           <div>
             <p className="text-sm font-medium text-[hsl(var(--neutral-500))] mb-1">안녕하세요</p>
             <h1 className="text-2xl md:text-3xl font-bold text-[hsl(var(--neutral-900))]">{user?.fullName}님</h1>
-            <p className="text-[hsl(var(--neutral-500))] mt-1 text-sm">조직 현황을 확인하세요.</p>
+            <p className="text-[hsl(var(--neutral-500))] mt-1 text-sm">통합 시스템의 기본 화면입니다. 현재 설문 현황을 먼저 보여줍니다.</p>
           </div>
           {user?.role === 'admin' && (
             <Link
-              href="/admin/surveys/new"
+              href="/admin/surveys"
               className="ts-btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm"
             >
               새 설문 만들기 <ArrowRight className="w-4 h-4" />
@@ -42,6 +42,12 @@ export default function Dashboard() {
               <div key={i} className="h-28 bg-[hsl(var(--neutral-200))] rounded-xl"></div>
             ))}
           </div>
+        ) : error ? (
+          <div className="ts-card p-8 flex flex-col items-center justify-center text-center">
+            <AlertTriangle className="w-10 h-10 text-[hsl(var(--red-500))] mb-3" />
+            <p className="text-[hsl(var(--neutral-900))] font-semibold mb-1">대시보드 데이터를 불러오지 못했습니다.</p>
+            <p className="text-sm text-[hsl(var(--neutral-500))]">백엔드 연결 또는 권한 설정을 확인해주세요.</p>
+          </div>
         ) : overview ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -54,16 +60,16 @@ export default function Dashboard() {
             <div>
               <h2 className="text-base font-bold text-[hsl(var(--neutral-900))] mb-4 flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-[hsl(var(--primary-400))]" />
-                최근 설문 현황
+                설문 기능 현황
               </h2>
               <div className="space-y-3">
-                {overview.recentSurveys.length === 0 ? (
+                {overview.recentSurveys?.length === 0 ? (
                   <div className="ts-card p-12 flex flex-col items-center justify-center text-center">
                     <ClipboardCheck className="w-12 h-12 text-[hsl(var(--neutral-300))] mb-3" />
                     <p className="text-[hsl(var(--neutral-500))] text-sm">진행된 설문이 없습니다.</p>
                   </div>
                 ) : (
-                  overview.recentSurveys.map((survey, i) => (
+                  overview.recentSurveys?.map((survey, i) => (
                     <motion.div
                       key={survey.id}
                       initial={{ opacity: 0, y: 8 }}

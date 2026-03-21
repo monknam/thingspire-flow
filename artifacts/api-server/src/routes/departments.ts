@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
     .from(departmentsTable)
     .orderBy(departmentsTable.name);
 
-  res.json(departments.map((d) => ({
+  return res.json(departments.map((d) => ({
     id: d.id,
     name: d.name,
     code: d.code,
@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
     .values({ name, code: code || null, parentId: parentId || null })
     .returning();
 
-  res.status(201).json({
+  return res.status(201).json({
     id: dept.id,
     name: dept.name,
     code: dept.code,
@@ -71,7 +71,7 @@ router.patch("/:id", async (req, res) => {
 
   if (!dept) return res.status(404).json({ error: "Department not found" });
 
-  res.json({
+  return res.json({
     id: dept.id,
     name: dept.name,
     code: dept.code,

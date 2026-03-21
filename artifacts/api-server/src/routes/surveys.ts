@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
     .from(surveyCyclesTable)
     .orderBy(desc(surveyCyclesTable.year), desc(surveyCyclesTable.createdAt));
 
-  res.json(surveys.map(mapCycle));
+  return res.json(surveys.map(mapCycle));
 });
 
 // POST /surveys
@@ -46,7 +46,7 @@ router.post("/", async (req, res) => {
     })
     .returning();
 
-  res.status(201).json(mapCycle(cycle));
+  return res.status(201).json(mapCycle(cycle));
 });
 
 // GET /surveys/:id
@@ -91,7 +91,7 @@ router.get("/:id", async (req, res) => {
     sectionMap.get(q.surveySectionId)!.push(q);
   }
 
-  res.json({
+  return res.json({
     ...mapCycle(cycles[0]),
     sections: sections.map((s) => ({
       id: s.id,
@@ -129,7 +129,7 @@ router.patch("/:id", async (req, res) => {
     .returning();
 
   if (!cycle) return res.status(404).json({ error: "Survey not found" });
-  res.json(mapCycle(cycle));
+  return res.json(mapCycle(cycle));
 });
 
 // POST /surveys/:id/activate
@@ -145,7 +145,7 @@ router.post("/:id/activate", async (req, res) => {
     .returning();
 
   if (!cycle) return res.status(404).json({ error: "Survey not found" });
-  res.json(mapCycle(cycle));
+  return res.json(mapCycle(cycle));
 });
 
 // POST /surveys/:id/close
@@ -161,7 +161,7 @@ router.post("/:id/close", async (req, res) => {
     .returning();
 
   if (!cycle) return res.status(404).json({ error: "Survey not found" });
-  res.json(mapCycle(cycle));
+  return res.json(mapCycle(cycle));
 });
 
 // GET /surveys/:surveyId/sections
@@ -175,7 +175,7 @@ router.get("/:surveyId/sections", async (req, res) => {
     .where(eq(surveySectionsTable.surveyCycleId, req.params.surveyId))
     .orderBy(asc(surveySectionsTable.sortOrder));
 
-  res.json(sections.map(mapSection));
+  return res.json(sections.map(mapSection));
 });
 
 // POST /surveys/:surveyId/sections
@@ -197,7 +197,7 @@ router.post("/:surveyId/sections", async (req, res) => {
     })
     .returning();
 
-  res.status(201).json(mapSection(section));
+  return res.status(201).json(mapSection(section));
 });
 
 // GET /surveys/:surveyId/my-response
@@ -226,7 +226,7 @@ router.get("/:surveyId/my-response", async (req, res) => {
     .from(surveyAnswersTable)
     .where(eqOp(surveyAnswersTable.surveyResponseId, responses[0].id));
 
-  res.json({
+  return res.json({
     id: responses[0].id,
     surveyCycleId: responses[0].surveyCycleId,
     isSubmitted: responses[0].isSubmitted,
@@ -280,7 +280,7 @@ router.post("/:surveyId/responses/start", async (req, res) => {
     .from(surveyAnswersTable)
     .where(eqOp(surveyAnswersTable.surveyResponseId, response.id));
 
-  res.json({
+  return res.json({
     id: response.id,
     surveyCycleId: response.surveyCycleId,
     isSubmitted: response.isSubmitted,

@@ -50,7 +50,7 @@ router.post("/login", async (req, res) => {
   req.session.userId = user.id;
   await new Promise<void>((resolve, reject) => req.session.save((err) => err ? reject(err) : resolve()));
 
-  res.json({
+  return res.json({
     id: user.id,
     email: user.email,
     fullName: user.fullName,
@@ -63,7 +63,7 @@ router.post("/login", async (req, res) => {
 
 router.post("/logout", (req, res) => {
   req.session.destroy(() => {
-    res.json({ success: true, message: "Logged out" });
+    return res.json({ success: true, message: "Logged out" });
   });
 });
 
@@ -72,7 +72,7 @@ router.get("/me", async (req, res) => {
   if (!user) {
     return res.status(401).json({ error: "Not authenticated" });
   }
-  res.json(user);
+  return res.json(user);
 });
 
 export default router;

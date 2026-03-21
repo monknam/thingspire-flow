@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 export default function SurveyList() {
   const { isAuthorized } = useProtectedRoute();
   const { data: surveys, isLoading } = useGetSurveys();
+  const surveyList = Array.isArray(surveys) ? surveys : [];
 
   if (!isAuthorized) return null;
 
@@ -21,9 +22,9 @@ export default function SurveyList() {
             <div className="w-8 h-8 rounded-lg bg-[hsl(var(--primary-50))] text-[hsl(var(--primary-400))] flex items-center justify-center">
               <ClipboardList className="w-4 h-4" />
             </div>
-            조직문화 설문
+            설문 모듈
           </h1>
-          <p className="text-[hsl(var(--neutral-500))] text-sm mt-2 ml-10">참여 가능하거나 완료된 설문 목록입니다.</p>
+          <p className="text-[hsl(var(--neutral-500))] text-sm mt-2 ml-10">통합 시스템 내 설문 기능에서 참여 가능하거나 완료된 설문 목록입니다.</p>
         </div>
 
         {/* List */}
@@ -33,7 +34,7 @@ export default function SurveyList() {
               <div key={i} className="h-24 bg-[hsl(var(--neutral-200))] rounded-xl"></div>
             ))}
           </div>
-        ) : !surveys || surveys.length === 0 ? (
+        ) : surveyList.length === 0 ? (
           <div className="ts-card p-14 flex flex-col items-center justify-center text-center">
             <ClipboardList className="w-14 h-14 text-[hsl(var(--neutral-300))] mb-4" />
             <h3 className="font-semibold text-[hsl(var(--neutral-700))]">참여 가능한 설문이 없습니다.</h3>
@@ -41,7 +42,7 @@ export default function SurveyList() {
           </div>
         ) : (
           <div className="space-y-3">
-            {surveys.map((survey, index) => (
+            {surveyList.map((survey, index) => (
               <motion.div
                 key={survey.id}
                 initial={{ opacity: 0, y: 8 }}

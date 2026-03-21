@@ -53,7 +53,7 @@ router.get("/overview", async (req, res) => {
     })
   );
 
-  res.json({ totalUsers, totalDepartments: Number(deptCount.count), activeSurveys, recentSurveys });
+  return res.json({ totalUsers, totalDepartments: Number(deptCount.count), activeSurveys, recentSurveys });
 });
 
 // ── Survey Detail Dashboard ────────────────────────────
@@ -134,7 +134,7 @@ router.get("/surveys/:surveyId", async (req, res) => {
     })
   );
 
-  res.json({ survey: { id: survey.id, title: survey.title, description: survey.description, year: survey.year, quarter: survey.quarter, status: survey.status, startAt: survey.startAt, endAt: survey.endAt, anonymousMinCount: survey.anonymousMinCount }, overallResponseRate, submittedCount, totalEligible, departmentStats, sectionResults });
+  return res.json({ survey: { id: survey.id, title: survey.title, description: survey.description, year: survey.year, quarter: survey.quarter, status: survey.status, startAt: survey.startAt, endAt: survey.endAt, anonymousMinCount: survey.anonymousMinCount }, overallResponseRate, submittedCount, totalEligible, departmentStats, sectionResults });
 });
 
 // ── Group Comparison (개발 vs 비개발) ─────────────────────
@@ -192,7 +192,7 @@ router.get("/surveys/:surveyId/group-comparison", async (req, res) => {
     groupResults[group] = { count: groupCount, safe, sections: sectionData };
   }
 
-  res.json({ groups: groupResults, minRequired: GROUP_MIN });
+  return res.json({ groups: groupResults, minRequired: GROUP_MIN });
 });
 
 // ── Qualitative Analysis ───────────────────────────────
@@ -242,7 +242,7 @@ router.get("/surveys/:surveyId/qualitative", async (req, res) => {
     }
   }
 
-  res.json({ safe: true, submittedCount, questions: result });
+  return res.json({ safe: true, submittedCount, questions: result });
 });
 
 // ── Action Items ──────────────────────────────────────
@@ -256,7 +256,7 @@ router.get("/action-items", async (req, res) => {
     ? await db.select().from(actionItemsTable).where(eq(actionItemsTable.surveyCycleId, String(surveyId))).orderBy(desc(actionItemsTable.createdAt))
     : await db.select().from(actionItemsTable).orderBy(desc(actionItemsTable.createdAt));
 
-  res.json(items);
+  return res.json(items);
 });
 
 router.post("/action-items", async (req, res) => {
@@ -279,7 +279,7 @@ router.post("/action-items", async (req, res) => {
     createdBy: user.id,
   }).returning();
 
-  res.status(201).json(item);
+  return res.status(201).json(item);
 });
 
 router.patch("/action-items/:id", async (req, res) => {
@@ -301,7 +301,7 @@ router.patch("/action-items/:id", async (req, res) => {
 
   const [updated] = await db.update(actionItemsTable).set(updates).where(eq(actionItemsTable.id, id)).returning();
   if (!updated) return res.status(404).json({ error: "Not found" });
-  res.json(updated);
+  return res.json(updated);
 });
 
 router.delete("/action-items/:id", async (req, res) => {
@@ -311,7 +311,7 @@ router.delete("/action-items/:id", async (req, res) => {
 
   const { id } = req.params;
   await db.delete(actionItemsTable).where(eq(actionItemsTable.id, id));
-  res.json({ ok: true });
+  return res.json({ ok: true });
 });
 
 export default router;

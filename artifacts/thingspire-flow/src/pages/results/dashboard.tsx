@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useProtectedRoute } from "@/hooks/use-auth";
+import { useAuth, useProtectedRoute } from "@/hooks/use-auth";
 import { Shell } from "@/components/layout/Shell";
 import { useGetSurveys } from "@workspace/api-client-react";
 import {
@@ -38,8 +38,9 @@ export default function ResultsDashboard() {
   const { data: surveys } = useGetSurveys();
   const [activeTab, setActiveTab] = useState<TabId>("executive");
   const [selectedSurveyId, setSelectedSurveyId] = useState<string>("");
+  const surveyList = Array.isArray(surveys) ? surveys : [];
 
-  const availableSurveys = surveys?.filter((s) => s.status !== "draft") ?? [];
+  const availableSurveys = surveyList.filter((s) => s.status !== "draft");
   const effectiveSurveyId = selectedSurveyId || availableSurveys[0]?.id || null;
 
   const { data: dashboard, isLoading } = useSurveyDashboard(effectiveSurveyId);
@@ -451,6 +452,7 @@ const PRIORITY_LABEL: Record<string, string> = { high: "높음", medium: "보통
 const STATUS_LABEL: Record<string, string> = { todo: "미착수", in_progress: "진행중", done: "완료" };
 
 function ActionPlannerTab({ surveyId }: { surveyId: string | null }) {
+  const { user } = useAuth();
   const { data: items = [], isLoading } = useActionItems(surveyId);
   const createMutation = useCreateActionItem();
   const updateMutation = useUpdateActionItem();
@@ -458,6 +460,7 @@ function ActionPlannerTab({ surveyId }: { surveyId: string | null }) {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ category: "company_wide", title: "", description: "", owner: "", priority: "medium", dueDate: "" });
+  const canDelete = user?.role === "admin";
 
   const handleCreate = async () => {
     if (!form.title.trim()) { toast({ title: "과제명을 입력해주세요.", variant: "destructive" }); return; }
@@ -565,9 +568,11 @@ function ActionPlannerTab({ surveyId }: { surveyId: string | null }) {
                     >
                       {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                     </select>
-                    <button onClick={() => deleteMutation.mutate(item.id)} className="p-1.5 text-[hsl(var(--neutral-400))] hover:text-[hsl(var(--red-500))] rounded transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {canDelete ? (
+                      <button onClick={() => deleteMutation.mutate(item.id)} className="p-1.5 text-[hsl(var(--neutral-400))] hover:text-[hsl(var(--red-500))] rounded transition-colors">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               ))}

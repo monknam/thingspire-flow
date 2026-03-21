@@ -93,7 +93,7 @@ router.get("/", async (req, res) => {
     return res.status(403).json({ error: "Admin or leader only" });
   }
 
-  res.json(await listAdminUsers());
+  return res.json(await listAdminUsers());
 });
 
 router.patch("/:id", async (req, res) => {
@@ -138,7 +138,7 @@ router.patch("/:id", async (req, res) => {
 
   const finalResult = await getAdminUserById(id);
   if (!finalResult) return res.status(404).json({ error: "User not found" });
-  res.json(finalResult);
+  return res.json(finalResult);
 });
 
 export default router;

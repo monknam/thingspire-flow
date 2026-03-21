@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
+import { Link } from "wouter";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export default function Login() {
   const { login, isLoggingIn } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@thingspire.com");
+  const [password, setPassword] = useState("admin1234");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,19 +19,9 @@ export default function Login() {
       {/* Left — Brand Panel */}
       <div className="hidden lg:flex flex-col justify-between w-96 shrink-0 px-10 py-12 border-r border-white/10">
         <div>
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-10 h-10 rounded-xl bg-[hsl(var(--primary-400))] flex items-center justify-center shadow-lg">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <div>
-              <p className="text-white font-bold text-lg leading-none">Thingspire</p>
-              <p className="text-[hsl(var(--primary-300))] text-xs font-medium mt-0.5">Flow</p>
-            </div>
-          </div>
+          <Link href="/" className="mb-12 inline-flex">
+            <BrandLogo showCaption />
+          </Link>
 
           <h2 className="text-3xl font-bold text-white leading-snug mb-4">
             조직문화를<br />함께 진단합니다
@@ -63,19 +55,14 @@ export default function Login() {
           className="w-full max-w-sm"
         >
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-10 justify-center">
-            <div className="w-9 h-9 rounded-lg bg-[hsl(var(--primary-400))] flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="text-white font-bold text-xl">Thingspire Flow</span>
+          <div className="lg:hidden mb-10 flex justify-center">
+            <Link href="/">
+              <BrandLogo compact showCaption />
+            </Link>
           </div>
 
           <h1 className="text-2xl font-bold text-white mb-2">로그인</h1>
-          <p className="text-[hsl(var(--neutral-400))] text-sm mb-8">조직문화 진단 플랫폼에 오신 것을 환영합니다.</p>
+          <p className="text-[hsl(var(--neutral-400))] text-sm mb-8">통합 시스템에 오신 것을 환영합니다. 설문은 여러 업무 기능 중 하나입니다.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
@@ -101,6 +88,7 @@ export default function Login() {
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
+                autoFocus
               />
             </div>
 
@@ -114,7 +102,7 @@ export default function Login() {
           </form>
 
           <p className="text-center text-xs text-[hsl(var(--neutral-500))] mt-8">
-            회사 계정으로 로그인하세요. 문의: 관리자
+            로컬 개발 기본 계정이 자동 입력되어 있습니다. 엔터만 누르면 로그인됩니다.
           </p>
         </motion.div>
       </div>

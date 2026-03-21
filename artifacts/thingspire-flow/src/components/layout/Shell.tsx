@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { 
   LayoutDashboard, 
   ClipboardList, 
@@ -44,18 +45,8 @@ export function Shell({ children }: ShellProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-6 py-6 border-b border-white/10">
-        <Link href="/" onClick={closeMenu} className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[hsl(var(--primary-400))] flex items-center justify-center shadow-lg">
-            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <div>
-            <p className="text-white font-bold text-base leading-tight">Thingspire</p>
-            <p className="text-[hsl(var(--primary-300))] text-xs font-medium">Flow</p>
-          </div>
+        <Link href="/" onClick={closeMenu}>
+          <BrandLogo showCaption className="align-middle" />
         </Link>
       </div>
 
@@ -86,7 +77,7 @@ export function Shell({ children }: ShellProps) {
       <div className="px-4 py-5 border-t border-white/10 space-y-2">
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/8">
           <div className="w-9 h-9 rounded-full bg-[hsl(var(--primary-400))] flex items-center justify-center font-bold text-white text-sm shrink-0">
-            {user.fullName?.charAt(0) || user.email.charAt(0).toUpperCase()}
+            {user.fullName?.charAt(0) || user.email?.charAt(0)?.toUpperCase() || "U"}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white truncate">{user.fullName || "사용자"}</p>
@@ -110,16 +101,9 @@ export function Shell({ children }: ShellProps) {
     <div className="min-h-screen flex flex-col md:flex-row bg-[hsl(var(--neutral-50))]">
       {/* Mobile Header */}
       <header className="md:hidden flex items-center justify-between px-5 py-4 bg-[hsl(var(--neutral-900))] sticky top-0 z-40">
-        <div className="font-bold text-white flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md bg-[hsl(var(--primary-400))] flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          Thingspire Flow
-        </div>
+        <Link href="/" onClick={closeMenu}>
+          <BrandLogo compact showCaption />
+        </Link>
         <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-white">
           {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>

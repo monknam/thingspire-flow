@@ -8,14 +8,16 @@ const router = Router({ mergeParams: true });
 router.get("/", async (req, res) => {
   const user = await getCurrentUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
+  const { sectionId } = req.params as { sectionId?: string };
+  if (!sectionId) return res.status(400).json({ error: "sectionId required" });
 
   const questions = await db
     .select()
     .from(surveyQuestionsTable)
-    .where(eq(surveyQuestionsTable.surveySectionId, req.params.sectionId))
+    .where(eq(surveyQuestionsTable.surveySectionId, sectionId))
     .orderBy(asc(surveyQuestionsTable.sortOrder));
 
-  res.json(questions.map((q) => ({
+  return res.json(questions.map((q) => ({
     id: q.id,
     surveySectionId: q.surveySectionId,
     questionNo: q.questionNo,
@@ -32,6 +34,8 @@ router.post("/", async (req, res) => {
   const user = await getCurrentUser(req);
   if (!user) return res.status(401).json({ error: "Unauthorized" });
   if (user.role !== "admin") return res.status(403).json({ error: "Admin only" });
+  const { sectionId } = req.params as { sectionId?: string };
+  if (!sectionId) return res.status(400).json({ error: "sectionId required" });
 
   const { questionNo, questionText, questionType, isRequired, sortOrder } = req.body;
   if (!questionText || !questionType) return res.status(400).json({ error: "questionText and questionType required" });
@@ -39,7 +43,7 @@ router.post("/", async (req, res) => {
   const [q] = await db
     .insert(surveyQuestionsTable)
     .values({
-      surveySectionId: req.params.sectionId,
+      surveySectionId: sectionId,
       questionNo: questionNo ? parseInt(questionNo) : null,
       questionText,
       questionType: questionType || "likert_5",
@@ -48,7 +52,7 @@ router.post("/", async (req, res) => {
     })
     .returning();
 
-  res.status(201).json({
+  return res.status(201).json({
     id: q.id,
     surveySectionId: q.surveySectionId,
     questionNo: q.questionNo,
