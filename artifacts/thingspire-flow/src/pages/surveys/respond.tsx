@@ -201,7 +201,11 @@ export default function SurveyRespond() {
               )}
             </div>
 
-            {currentSection.questions.map((q, idx) => (
+            {currentSection.questions.map((q, idx) => {
+              const choiceOptions = getShortTextOptions(q.questionText);
+              const displayQuestionText = getDisplayQuestionText(q.questionText);
+
+              return (
               <div key={q.id} className="ts-card p-6 md:p-7">
                 {/* Question Header */}
                 <div className="flex gap-4 mb-6">
@@ -210,7 +214,7 @@ export default function SurveyRespond() {
                   </div>
                   <div className="flex-1">
                     <p className="text-[hsl(var(--neutral-900))] font-medium leading-snug">
-                      {q.questionText}
+                      {displayQuestionText}
                       {q.isRequired && <span className="text-[hsl(var(--red-500))] ml-1">*</span>}
                     </p>
                     {!q.isRequired && (
@@ -228,13 +232,21 @@ export default function SurveyRespond() {
                     />
                   )}
                   {q.questionType === 'short_text' && (
-                    <input
-                      type="text"
-                      value={localAnswers[q.id]?.text || ''}
-                      onChange={(e) => handleAnswerChange(q.id, 'short_text', e.target.value)}
-                      placeholder="자유롭게 입력해주세요"
-                      className="ts-input"
-                    />
+                    choiceOptions.length > 0 ? (
+                      <ChoiceOptions
+                        value={localAnswers[q.id]?.text}
+                        options={choiceOptions}
+                        onChange={(option) => handleAnswerChange(q.id, "short_text", option)}
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={localAnswers[q.id]?.text || ''}
+                        onChange={(e) => handleAnswerChange(q.id, 'short_text', e.target.value)}
+                        placeholder="입력해주세요"
+                        className="ts-input"
+                      />
+                    )
                   )}
                   {q.questionType === 'long_text' && (
                     <textarea
@@ -247,7 +259,8 @@ export default function SurveyRespond() {
                   )}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </motion.div>
         </AnimatePresence>
 
@@ -293,6 +306,61 @@ export default function SurveyRespond() {
         </div>
       </div>
     </Shell>
+  );
+}
+
+function getDisplayQuestionText(questionText: string) {
+  return questionText.split("▸")[0]?.trim() || questionText;
+}
+
+function getShortTextOptions(questionText: string) {
+  if (questionText.includes("직무 유형")) {
+    return ["개발", "기획 / PM", "경영관리", "기타"];
+  }
+
+  if (questionText.includes("근속 기간")) {
+    return ["1년 미만", "1~3년", "3~5년", "5년 이상"];
+  }
+
+  const rawOptions = questionText.split("▸")[1];
+  if (!rawOptions) return [];
+
+  return rawOptions
+    .split("/")
+    .map((option) => option.trim())
+    .filter(Boolean);
+}
+
+function ChoiceOptions({
+  value,
+  options,
+  onChange,
+}: {
+  value?: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      {options.map((option) => {
+        const isSelected = value === option;
+        return (
+          <button
+            key={option}
+            type="button"
+            onClick={() => onChange(option)}
+            className={cn(
+              "rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors",
+              isSelected
+                ? "border-[hsl(var(--primary-400))] bg-[hsl(var(--primary-50))] text-[hsl(var(--primary-400))]"
+                : "border-[hsl(var(--neutral-200))] bg-white text-[hsl(var(--neutral-700))] hover:border-[hsl(var(--primary-200))] hover:bg-[hsl(var(--neutral-50))]"
+            )}
+          >
+            {option}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
