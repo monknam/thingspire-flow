@@ -24,19 +24,19 @@ export default function Login() {
           </Link>
 
           <h2 className="text-3xl font-bold text-white leading-snug mb-4">
-            조직문화를<br />함께 진단합니다
+            데이터 기반<br />조직 운영 시스템
           </h2>
           <p className="text-[hsl(var(--neutral-400))] text-sm leading-relaxed">
-            방향성, 실행력, 협업, 동기부여, 건강성, 분위기까지—
-            우리 조직의 현재를 솔직하게 파악하고 더 나은 내일을 만들어갑니다.
+            Thingspire Flow는 조직문화 진단부터 360 다면평가, 목표 관리(OKR)까지
+            조직의 성장과 변화 관리를 지원하는 통합 HR 플랫폼입니다.
           </p>
         </div>
 
         <div className="space-y-4">
           {[
-            { icon: "🔒", text: "철저한 익명 보장" },
-            { icon: "📊", text: "데이터 기반 조직 진단" },
-            { icon: "🚫", text: "인사평가 미반영" },
+            { icon: "📊", text: "데이터 기반 의사결정" },
+            { icon: "🎯", text: "통합 조직 관리 (진단/평가/목표)" },
+            { icon: "🔒", text: "신뢰 기반의 안전한 환경" },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-3 text-sm text-[hsl(var(--neutral-300))]">
               <span className="text-base">{item.icon}</span>
@@ -62,7 +62,7 @@ export default function Login() {
           </div>
 
           <h1 className="text-2xl font-bold text-white mb-2">로그인</h1>
-          <p className="text-[hsl(var(--neutral-400))] text-sm mb-8">통합 시스템에 오신 것을 환영합니다. 설문은 여러 업무 기능 중 하나입니다.</p>
+          <p className="text-[hsl(var(--neutral-400))] text-sm mb-8">통합 시스템에 오신 것을 환영합니다.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
