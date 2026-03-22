@@ -1,6 +1,6 @@
 import { useProtectedRoute } from "@/hooks/use-auth";
 import { Shell } from "@/components/layout/Shell";
-import { useGetDashboardOverview } from "@workspace/api-client-react";
+import { useGetDashboardOverview } from "@/hooks/use-dashboard";
 import { Users, Building2, ClipboardCheck, ArrowRight, BarChart3, AlertTriangle, Target, Users2, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";

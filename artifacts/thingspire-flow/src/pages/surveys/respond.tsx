@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react";
 import { useProtectedRoute } from "@/hooks/use-auth";
 import { Shell } from "@/components/layout/Shell";
-import {
-  useGetSurvey,
-  useGetMyResponse,
-  useSaveAnswers,
-  useSubmitResponse,
-  getGetMyResponseQueryKey,
-  getGetSurveyQueryKey,
-} from "@workspace/api-client-react";
+import { useGetSurvey, useGetMyResponse, useSaveAnswers, useSubmitResponse } from "@/hooks/use-surveys";
 import { useRoute, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronLeft, ChevronRight, Save } from "lucide-react";
@@ -22,8 +15,8 @@ export default function SurveyRespond() {
   const { toast } = useToast();
 
   const id = params?.id || "";
-  const { data: survey, isLoading: isLoadingSurvey } = useGetSurvey(id, { query: { enabled: !!id, queryKey: getGetSurveyQueryKey(id) } });
-  const { data: responseData, isLoading: isLoadingResponse, refetch } = useGetMyResponse(id, { query: { enabled: !!id, retry: false, queryKey: getGetMyResponseQueryKey(id) } });
+  const { data: survey, isLoading: isLoadingSurvey } = useGetSurvey(id);
+  const { data: responseData, isLoading: isLoadingResponse, refetch } = useGetMyResponse(id);
 
   const saveMutation = useSaveAnswers();
   const submitMutation = useSubmitResponse();

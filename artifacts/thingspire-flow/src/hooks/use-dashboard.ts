@@ -1,4 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "./use-auth";
 
 const BASE = `${import.meta.env.BASE_URL}api`;
 
@@ -73,6 +75,73 @@ export interface ActionItem {
   status: "todo" | "in_progress" | "done";
   dueDate: string | null;
   createdAt: string;
+}
+
+// ── Dashboard Overview (Supabase direct) ───────────────
+
+export interface DashboardOverview {
+  totalUsers: number;
+  totalDepartments: number;
+  activeSurveys: number;
+  recentSurveys: {
+    id: string;
+    title: string;
+    year: number;
+    quarter: number | null;
+    status: string;
+    responseRate: number;
+    submittedCount: number;
+    totalEligible: number;
+  }[];
+}
+
+export function useGetDashboardOverview() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ["dashboard", "overview"],
+    queryFn: async (): Promise<DashboardOverview> => {
+      const [usersRes, deptRes, activeRes, surveysRes] = await Promise.all([
+        supabase!.from("profiles").select("*", { count: "exact", head: true }),
+        supabase!.from("departments").select("*", { count: "exact", head: true }),
+        supabase!.from("survey_cycles").select("*", { count: "exact", head: true }).eq("status", "active"),
+        supabase!
+          .from("survey_cycles")
+          .select("id, title, year, quarter, status")
+          .in("status", ["active", "closed"])
+          .order("year", { ascending: false })
+          .limit(5),
+      ]);
+
+      const totalUsers = usersRes.count ?? 0;
+      const cycles = (surveysRes.data ?? []) as { id: string; title: string; year: number; quarter: number | null; status: string }[];
+
+      const recentSurveys = await Promise.all(
+        cycles.map(async (s) => {
+          const { count } = await supabase!
+            .from("survey_responses")
+            .select("*", { count: "exact", head: true })
+            .eq("survey_cycle_id", s.id)
+            .eq("is_submitted", true);
+          const submitted = count ?? 0;
+          return {
+            ...s,
+            submittedCount: submitted,
+            totalEligible: totalUsers,
+            responseRate: totalUsers > 0 ? (submitted / totalUsers) * 100 : 0,
+          };
+        })
+      );
+
+      return {
+        totalUsers,
+        totalDepartments: deptRes.count ?? 0,
+        activeSurveys: activeRes.count ?? 0,
+        recentSurveys,
+      };
+    },
+    enabled: !!supabase && !!user,
+    staleTime: 2 * 60 * 1000,
+  });
 }
 
 // ── Hooks ──────────────────────────────────────────────

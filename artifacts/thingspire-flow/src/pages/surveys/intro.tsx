@@ -1,6 +1,6 @@
 import { useProtectedRoute } from "@/hooks/use-auth";
 import { Shell } from "@/components/layout/Shell";
-import { useGetSurvey, useStartResponse, getGetSurveyQueryKey } from "@workspace/api-client-react";
+import { useGetSurvey, useStartResponse } from "@/hooks/use-surveys";
 import { useRoute, Link, useLocation } from "wouter";
 import { Shield, Target, Info, ArrowRight, CheckCircle, Lock } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,7 +13,7 @@ export default function SurveyIntro() {
   const { toast } = useToast();
 
   const id = params?.id || "";
-  const { data: survey, isLoading } = useGetSurvey(id, { query: { enabled: !!id, queryKey: getGetSurveyQueryKey(id) } });
+  const { data: survey, isLoading } = useGetSurvey(id);
   const startMutation = useStartResponse();
 
   if (!isAuthorized) return null;
