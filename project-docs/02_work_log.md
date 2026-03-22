@@ -126,6 +126,11 @@
 
 ### Completed
 
+- Updated survey response UX so non-qualitative short-text questions can be answered via selection instead of free typing when the prompt embeds choice options
+  - the response screen now parses inline options from question text after `▸`
+  - objective/profile-style short-text prompts render as dropdown selects with a `선택해주세요` placeholder
+  - long-form qualitative opinion fields remain free-text
+  - `artifacts/thingspire-flow/src/pages/surveys/respond.tsx`
 - Completed a broader frontend wording pass for internal-use positioning across admin and survey participation screens
   - admin user/department pages now read as internal operations screens rather than generic SaaS admin pages
   - survey intro/respond flows now emphasize internal diagnosis participation, confidentiality, and internal improvement use
@@ -199,5 +204,47 @@
 ### Recommended Next Task
 
 - Continue with a page-by-page wording and IA pass for survey intro/respond, admin screens, and remaining empty/error states
-- Updated login screen copy to frame the application as an integrated organizational operations platform, aligning with product vision
-  - `artifacts/thingspire-flow/src/pages/login.tsx`
+
+## 2026-03-22 (Session 2)
+
+### Completed
+
+- Supabase Auth 계정 생성 (Python Admin API로 32명 정규직)
+- `nam@thingspire.com` 로그인 시 역할 선택 화면(`/role-select`) 구현
+  - sessionStorage 기반 role override (관리자 / 리더 선택)
+  - `artifacts/thingspire-flow/src/pages/role-select.tsx`
+  - `artifacts/thingspire-flow/src/hooks/use-auth.ts`
+  - `artifacts/thingspire-flow/src/App.tsx`
+- 설문 DB 테이블 생성 (Supabase SQL): survey_cycles, survey_sections, survey_questions, survey_responses, survey_answers
+- 2026 Q1 조직문화 진단 설문 시딩: 섹션 10개, 질문 57개 (likert_5 40개 + short_text 2개 + long_text 15개)
+- Express API 서버 의존성 제거 — 설문/대시보드 API를 Supabase 직접 쿼리로 전환
+  - `artifacts/thingspire-flow/src/hooks/use-surveys.ts` (신규)
+  - `artifacts/thingspire-flow/src/hooks/use-dashboard.ts` (useGetDashboardOverview 추가)
+  - `artifacts/thingspire-flow/src/pages/surveys/index.tsx`
+  - `artifacts/thingspire-flow/src/pages/surveys/intro.tsx`
+  - `artifacts/thingspire-flow/src/pages/surveys/respond.tsx`
+  - `artifacts/thingspire-flow/src/pages/dashboard.tsx`
+- Supabase RLS 정책 설정: 설문 테이블 전체에 인증 기반 접근 제어
+- survey_responses FK를 users → profiles(auth.users) 참조로 변경
+- Vercel 배포 완료 (GitHub main 브랜치 자동 배포)
+
+### Current Architecture
+
+- Frontend: Vercel (React 19 + Vite)
+- Auth: Supabase Auth 직접 (JWT)
+- Survey 데이터: Supabase 직접 쿼리 (Express 불필요)
+- DB: Supabase PostgreSQL (wxtaepqveqrimjaauidd)
+- 테이블: departments, profiles, users (legacy), survey_cycles, survey_sections, survey_questions, survey_responses, survey_answers
+
+### Remaining Issues
+
+- profiles 테이블에 실제 사용자 데이터가 채워졌는지 확인 필요 (auth.users 기반 populate 필요할 수 있음)
+- 결과 분석 대시보드(admin/results)는 아직 Express API 호출 중 → 별도 Supabase 마이그레이션 필요
+- admin 설문 관리 페이지(admin/surveys/edit)도 Express API 사용 중
+- `nam@thingspire.com` 계정이 실제 Supabase auth에 존재하는지 확인 필요
+
+### Recommended Next Task
+
+- 배포된 앱에서 설문 참여 플로우 E2E 테스트 (로그인 → 설문 목록 → 소개 → 응답 → 제출)
+- profiles 테이블에 auth.users 기반 데이터 populate SQL 실행 확인
+- 결과 분석 대시보드를 Supabase 직접 쿼리로 전환
