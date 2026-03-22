@@ -6,8 +6,8 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export default function Login() {
   const { login, isLoggingIn } = useAuth();
-  const [email, setEmail] = useState("admin@thingspire.com");
-  const [password, setPassword] = useState("admin1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +16,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex bg-[hsl(var(--neutral-900))]">
-      {/* Left — Brand Panel */}
       <div className="hidden lg:flex flex-col justify-between w-96 shrink-0 px-10 py-12 border-r border-white/10">
         <div>
           <Link href="/" className="mb-12 inline-flex">
@@ -24,19 +23,19 @@ export default function Login() {
           </Link>
 
           <h2 className="text-3xl font-bold text-white leading-snug mb-4">
-            데이터 기반<br />조직 운영 시스템
+            조직의 현재를<br />함께 읽고 개선합니다
           </h2>
           <p className="text-[hsl(var(--neutral-400))] text-sm leading-relaxed">
-            Thingspire Flow는 조직문화 진단부터 360 다면평가, 목표 관리(OKR)까지
-            조직의 성장과 변화 관리를 지원하는 통합 HR 플랫폼입니다.
+            방향성, 실행력, 협업, 신뢰, 분위기를 데이터로 파악하고
+            진단 결과를 실제 개선 과제와 다음 행동으로 연결합니다.
           </p>
         </div>
 
         <div className="space-y-4">
           {[
-            { icon: "📊", text: "데이터 기반 의사결정" },
-            { icon: "🎯", text: "통합 조직 관리 (진단/평가/목표)" },
-            { icon: "🔒", text: "신뢰 기반의 안전한 환경" },
+            { icon: "🔒", text: "익명성 기반 조직 진단" },
+            { icon: "📊", text: "조직 단위 통계 해석" },
+            { icon: "🚫", text: "개선 목적 운영, 인사평가 미반영" },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-3 text-sm text-[hsl(var(--neutral-300))]">
               <span className="text-base">{item.icon}</span>
@@ -46,7 +45,6 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right — Login Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -54,15 +52,14 @@ export default function Login() {
           transition={{ duration: 0.4 }}
           className="w-full max-w-sm"
         >
-          {/* Mobile logo */}
           <div className="lg:hidden mb-10 flex justify-center">
             <Link href="/">
               <BrandLogo compact showCaption />
             </Link>
           </div>
 
-          <h1 className="text-2xl font-bold text-white mb-2">로그인</h1>
-          <p className="text-[hsl(var(--neutral-400))] text-sm mb-8">통합 시스템에 오신 것을 환영합니다.</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Thingspire Flow 시작하기</h1>
+          <p className="text-[hsl(var(--neutral-400))] text-sm mb-8">조직 진단과 운영 현황을 한 곳에서 확인하세요.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
@@ -97,12 +94,12 @@ export default function Login() {
               disabled={isLoggingIn}
               className="ts-btn-primary w-full py-3 mt-2"
             >
-              {isLoggingIn ? "로그인 중..." : "로그인"}
+              {isLoggingIn ? "접속 중..." : "시작하기"}
             </button>
           </form>
 
           <p className="text-center text-xs text-[hsl(var(--neutral-500))] mt-8">
-            로컬 개발 기본 계정이 자동 입력되어 있습니다. 엔터만 누르면 로그인됩니다.
+            로컬 개발 환경에서는 테스트 계정이 기본 입력될 수 있습니다.
           </p>
         </motion.div>
       </div>
