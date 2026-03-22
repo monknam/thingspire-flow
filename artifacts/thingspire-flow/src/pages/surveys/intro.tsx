@@ -21,7 +21,7 @@ export default function SurveyIntro() {
   const handleStart = () => {
     startMutation.mutate({ surveyId: id }, {
       onSuccess: () => setLocation(`/surveys/${id}/respond`),
-      onError: () => toast({ title: "오류 발생", description: "설문을 시작할 수 없습니다.", variant: "destructive" })
+      onError: () => toast({ title: "오류 발생", description: "진단 참여를 시작할 수 없습니다.", variant: "destructive" })
     });
   };
 
@@ -38,14 +38,14 @@ export default function SurveyIntro() {
   }
 
   if (!survey) {
-    return <Shell><p className="text-[hsl(var(--neutral-500))]">설문을 찾을 수 없습니다.</p></Shell>;
+    return <Shell><p className="text-[hsl(var(--neutral-500))]">해당 진단을 찾을 수 없습니다.</p></Shell>;
   }
 
   return (
     <Shell>
       <div className="max-w-3xl mx-auto">
         <Link href="/surveys" className="text-sm font-medium text-[hsl(var(--neutral-500))] hover:text-[hsl(var(--primary-400))] mb-6 inline-flex items-center gap-1 transition-colors">
-          ← 목록으로 돌아가기
+          ← 진단 목록으로 돌아가기
         </Link>
 
         <motion.div
@@ -58,7 +58,7 @@ export default function SurveyIntro() {
           <div className="ts-card overflow-hidden">
             <div className="bg-[hsl(var(--primary-400))] px-8 py-10 text-white">
               <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-semibold mb-3 tracking-wide">
-                {survey.year} {survey.quarter ? `Q${survey.quarter}` : ''} · 조직문화 진단
+                {survey.year} {survey.quarter ? `Q${survey.quarter}` : ''} · 사내 조직 진단
               </span>
               <h1 className="text-2xl md:text-3xl font-bold mb-3 leading-snug">
                 {survey.introTitle || survey.title}
@@ -83,7 +83,7 @@ export default function SurveyIntro() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-[hsl(var(--neutral-900))] font-semibold text-sm">
                     <Info className="w-4 h-4 text-[hsl(var(--primary-400))]" />
-                    활용 방향
+                    내부 활용 방향
                   </div>
                   <p className="text-[hsl(var(--neutral-600))] text-sm leading-relaxed">
                     {survey.introDirection}
@@ -97,16 +97,16 @@ export default function SurveyIntro() {
               <div className="ts-notice-box">
                 <div className="flex items-center gap-2 font-semibold text-[hsl(var(--neutral-900))] mb-3">
                   <Lock className="w-4 h-4 text-[hsl(var(--primary-400))]" />
-                  익명성 보장
+                  익명성 및 내부 활용 원칙
                 </div>
                 <p className="text-[hsl(var(--neutral-700))] text-sm leading-relaxed mb-4">
                   {survey.introConfidentiality}
                 </p>
                 <ul className="space-y-2">
                   {[
-                    "개별 응답은 관리자도 열람할 수 없습니다.",
-                    `5인 미만 그룹의 결과는 공개되지 않습니다.`,
-                    "이 결과는 인사평가에 절대 활용되지 않습니다."
+                    "개별 응답은 운영자도 직접 열람할 수 없습니다.",
+                    "응답 수가 적은 조직 단위 결과는 공개되지 않습니다.",
+                    "이 결과는 인사평가가 아니라 우리 조직의 개선을 위해 사용됩니다."
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-[hsl(var(--neutral-600))]">
                       <CheckCircle className="w-4 h-4 text-[hsl(var(--primary-400))] shrink-0 mt-0.5" />
@@ -136,8 +136,8 @@ export default function SurveyIntro() {
                   {survey.status !== 'active'
                     ? '현재 참여할 수 없습니다'
                     : startMutation.isPending
-                    ? '시작하는 중...'
-                    : '설문 시작하기'}
+                    ? '진단을 준비하는 중...'
+                    : '진단 참여 시작'}
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>

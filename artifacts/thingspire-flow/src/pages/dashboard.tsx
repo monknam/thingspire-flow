@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 
 const UPCOMING_MODULES = [
-  { label: "360 다면평가", icon: Users2, description: "구성원 간 상호 피드백" },
-  { label: "성과 평가", icon: Award, description: "정기 성과 측정·관리" },
-  { label: "목표 관리 (OKR)", icon: Target, description: "조직 목표 정렬 및 추적" },
+  { label: "360 피드백", icon: Users2, description: "구성원 간 상호 피드백" },
+  { label: "성과 운영", icon: Award, description: "정기 성과 점검 및 운영" },
+  { label: "OKR 운영", icon: Target, description: "조직 목표 정렬 및 실행 추적" },
 ];
 
 export default function Dashboard() {
@@ -20,7 +20,6 @@ export default function Dashboard() {
   return (
     <Shell>
       <div className="space-y-8">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -29,22 +28,21 @@ export default function Dashboard() {
           <div>
             <p className="text-sm font-medium text-[hsl(var(--neutral-500))] mb-1">안녕하세요</p>
             <h1 className="text-2xl md:text-3xl font-bold text-[hsl(var(--neutral-900))]">{user?.fullName}님</h1>
-            <p className="text-[hsl(var(--neutral-500))] mt-1 text-sm">조직 운영 현황을 한눈에 확인하세요.</p>
+            <p className="text-[hsl(var(--neutral-500))] mt-1 text-sm">우리 조직의 현재 상태와 진행 중인 내부 진단을 확인하세요.</p>
           </div>
-          {user?.role === 'admin' && (
+          {user?.role === "admin" && (
             <Link
               href="/admin/surveys"
               className="ts-btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm"
             >
-              진단 설문 관리 <ArrowRight className="w-4 h-4" />
+              조직 진단 운영 <ArrowRight className="w-4 h-4" />
             </Link>
           )}
         </motion.div>
 
-        {/* Stat Cards */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-pulse">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-28 bg-[hsl(var(--neutral-200))] rounded-xl"></div>
             ))}
           </div>
@@ -62,19 +60,18 @@ export default function Dashboard() {
               <StatCard title="진행 중인 진단" value={overview.activeSurveys} icon={ClipboardCheck} accent="neutral" delay={0.3} />
             </div>
 
-            {/* 조직문화 진단 현황 */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-bold text-[hsl(var(--neutral-900))] flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-[hsl(var(--primary-400))]" />
-                  조직문화 진단 현황
+                  현재 진행 중인 조직 진단
                 </h2>
-                {(user?.role === 'admin' || user?.role === 'leader') && (
+                {(user?.role === "admin" || user?.role === "leader") && (
                   <Link
                     href="/admin/results"
                     className="text-xs font-medium text-[hsl(var(--primary-400))] hover:underline flex items-center gap-1"
                   >
-                    결과 분석 보기 <ArrowRight className="w-3 h-3" />
+                    진단 리포트 보기 <ArrowRight className="w-3 h-3" />
                   </Link>
                 )}
               </div>
@@ -82,7 +79,7 @@ export default function Dashboard() {
                 {overview.recentSurveys?.length === 0 ? (
                   <div className="ts-card p-12 flex flex-col items-center justify-center text-center">
                     <ClipboardCheck className="w-12 h-12 text-[hsl(var(--neutral-300))] mb-3" />
-                    <p className="text-[hsl(var(--neutral-500))] text-sm">진행된 진단이 없습니다.</p>
+                    <p className="text-[hsl(var(--neutral-500))] text-sm">아직 진행된 조직 진단이 없습니다.</p>
                   </div>
                 ) : (
                   overview.recentSurveys?.map((survey, i) => (
@@ -96,7 +93,7 @@ export default function Dashboard() {
                       <div>
                         <div className="flex items-center gap-2 mb-2">
                           <StatusBadge status={survey.status} />
-                          <span className="text-xs text-[hsl(var(--neutral-500))]">{survey.year}년 {survey.quarter ? `${survey.quarter}분기` : ''}</span>
+                          <span className="text-xs text-[hsl(var(--neutral-500))]">{survey.year}년 {survey.quarter ? `${survey.quarter}분기` : ""}</span>
                         </div>
                         <h3 className="font-bold text-[hsl(var(--neutral-900))]">{survey.title}</h3>
                       </div>
@@ -110,7 +107,7 @@ export default function Dashboard() {
                           <p className="text-sm font-semibold text-[hsl(var(--neutral-700))]">{survey.submittedCount} / {survey.totalEligible}</p>
                         </div>
                         <Link
-                          href={user?.role === 'member' ? `/surveys/${survey.id}/intro` : `/admin/results`}
+                          href={user?.role === "member" ? `/surveys/${survey.id}/intro` : `/admin/results`}
                           className="w-9 h-9 rounded-lg bg-[hsl(var(--primary-50))] text-[hsl(var(--primary-400))] hover:bg-[hsl(var(--primary-400))] hover:text-white transition-colors flex items-center justify-center"
                         >
                           <ArrowRight className="w-4 h-4" />
@@ -122,10 +119,9 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* 준비 중 모듈 */}
             <div>
               <h2 className="text-base font-bold text-[hsl(var(--neutral-900))] mb-4">
-                준비 중인 모듈
+                사내 확장 예정 모듈
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {UPCOMING_MODULES.map((mod, i) => (
@@ -160,7 +156,7 @@ export default function Dashboard() {
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     active: "bg-[hsl(142_76%_36%/0.1)] text-[hsl(var(--green-500))]",
-    draft:  "bg-[hsl(var(--neutral-100))] text-[hsl(var(--neutral-600))]",
+    draft: "bg-[hsl(var(--neutral-100))] text-[hsl(var(--neutral-600))]",
     closed: "bg-[hsl(207_90%_54%/0.1)] text-[hsl(var(--blue-400))]",
   };
   const labels: Record<string, string> = { active: "진행중", draft: "준비중", closed: "종료됨" };

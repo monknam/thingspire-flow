@@ -25,9 +25,9 @@ import { useToast } from "@/hooks/use-toast";
 const TABS = [
   { id: "executive", label: "진단 요약", icon: LayoutDashboard },
   { id: "health", label: "조직 건강 진단", icon: Activity },
-  { id: "comparison", label: "조직별 비교", icon: Building2 },
-  { id: "qualitative", label: "정성 분석", icon: MessageSquare },
-  { id: "action", label: "액션 플래너", icon: ListChecks },
+  { id: "comparison", label: "조직 단위 비교", icon: Building2 },
+  { id: "qualitative", label: "정성 응답 분석", icon: MessageSquare },
+  { id: "action", label: "개선 실행 계획", icon: ListChecks },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
@@ -54,8 +54,8 @@ export default function ResultsDashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-[hsl(var(--neutral-900))]">조직문화 진단 리포트</h1>
-            <p className="text-sm text-[hsl(var(--neutral-500))] mt-0.5">설문 응답을 기반으로 조직 상태를 진단합니다.</p>
+            <h1 className="text-2xl font-bold text-[hsl(var(--neutral-900))]">조직 진단 리포트</h1>
+            <p className="text-sm text-[hsl(var(--neutral-500))] mt-0.5">구성원 응답을 바탕으로 우리 조직의 현재 상태를 해석하고 내부 개선 방향을 도출합니다.</p>
           </div>
           <select
             value={selectedSurveyId || effectiveSurveyId || ""}
@@ -86,6 +86,12 @@ export default function ResultsDashboard() {
               {tab.label}
             </button>
           ))}
+        </div>
+
+        <div className="ts-notice-box">
+          <p className="text-sm text-[hsl(var(--neutral-700))]">
+            이 리포트는 개인 평가가 아니라 우리 조직의 개선을 위한 내부 진단 자료입니다. 모든 해석은 익명성과 통계 기준을 전제로 제공됩니다.
+          </p>
         </div>
 
         {/* Content */}

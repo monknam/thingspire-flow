@@ -58,8 +58,8 @@ export default function Login() {
             </Link>
           </div>
 
-          <h1 className="text-2xl font-bold text-white mb-2">Thingspire Flow 시작하기</h1>
-          <p className="text-[hsl(var(--neutral-400))] text-sm mb-8">조직 진단과 운영 현황을 한 곳에서 확인하세요.</p>
+          <h1 className="text-2xl font-bold text-white mb-2">사내 운영 시스템 로그인</h1>
+          <p className="text-[hsl(var(--neutral-400))] text-sm mb-8">우리 조직의 진단과 운영 현황을 확인하세요.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">

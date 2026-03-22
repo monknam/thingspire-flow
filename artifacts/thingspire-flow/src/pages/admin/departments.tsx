@@ -25,15 +25,15 @@ export default function DepartmentsAdmin() {
     try {
       if (editingDept) {
         await updateMutation.mutateAsync({ id: editingDept.id, data: formData });
-        toast({ title: "수정 완료" });
+        toast({ title: "조직 정보가 반영되었습니다." });
       } else {
         await createMutation.mutateAsync({ data: formData });
-        toast({ title: "생성 완료" });
+        toast({ title: "새 조직이 추가되었습니다." });
       }
       setIsOpen(false);
       refetch();
     } catch (e) {
-      toast({ variant: "destructive", title: "오류 발생" });
+      toast({ variant: "destructive", title: "조직 정보를 반영하지 못했습니다." });
     }
   };
 
@@ -54,22 +54,22 @@ export default function DepartmentsAdmin() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-primary" /> 조직(부서) 관리
+            <Building2 className="w-6 h-6 text-primary" /> 조직 구조 운영
           </h1>
           
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <button onClick={openCreate} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary/90 flex items-center gap-2">
-                <Plus className="w-4 h-4" /> 부서 추가
+                <Plus className="w-4 h-4" /> 조직 추가
               </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>{editingDept ? '부서 수정' : '새 부서 추가'}</DialogTitle>
+                <DialogTitle>{editingDept ? '조직 정보 수정' : '새 조직 추가'}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 pt-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">부서명</label>
+                  <label className="text-sm font-medium">조직명</label>
                   <input
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
@@ -78,7 +78,7 @@ export default function DepartmentsAdmin() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">부서 코드 (선택)</label>
+                  <label className="text-sm font-medium">조직 코드 (선택)</label>
                   <input
                     value={formData.code}
                     onChange={e => setFormData({...formData, code: e.target.value})}
@@ -97,15 +97,15 @@ export default function DepartmentsAdmin() {
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium">
               <tr>
-                <th className="px-6 py-4">부서명</th>
+                <th className="px-6 py-4">조직명</th>
                 <th className="px-6 py-4">코드</th>
                 <th className="px-6 py-4">상태</th>
-                <th className="px-6 py-4 text-right">관리</th>
+                <th className="px-6 py-4 text-right">설정</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">로딩 중...</td></tr>
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">조직 정보를 불러오는 중...</td></tr>
               ) : (
                 departmentList.map(dept => (
                   <tr key={dept.id} className="border-b border-slate-100 hover:bg-slate-50/50">

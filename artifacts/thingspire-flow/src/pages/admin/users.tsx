@@ -32,11 +32,11 @@ export default function UsersAdmin() {
           departmentId: formData.departmentId || null
         } 
       });
-      toast({ title: "사용자 수정 완료" });
+      toast({ title: "구성원 정보가 반영되었습니다." });
       setIsOpen(false);
       refetch();
     } catch (e) {
-      toast({ variant: "destructive", title: "오류 발생" });
+      toast({ variant: "destructive", title: "구성원 정보를 반영하지 못했습니다." });
     }
   };
 
@@ -51,7 +51,7 @@ export default function UsersAdmin() {
     <Shell>
       <div className="space-y-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Users className="w-6 h-6 text-primary" /> 사용자 관리
+          <Users className="w-6 h-6 text-primary" /> 구성원 운영
         </h1>
         
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -61,12 +61,12 @@ export default function UsersAdmin() {
                 <th className="px-6 py-4">이름 / 이메일</th>
                 <th className="px-6 py-4">부서</th>
                 <th className="px-6 py-4">역할</th>
-                <th className="px-6 py-4 text-right">관리</th>
+                <th className="px-6 py-4 text-right">설정</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">로딩 중...</td></tr>
+              <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">구성원 정보를 불러오는 중...</td></tr>
               ) : (
                 userList.map(user => (
                   <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50/50">
@@ -89,7 +89,7 @@ export default function UsersAdmin() {
                           <Edit2 className="w-4 h-4" />
                         </button>
                       ) : (
-                        <span className="text-xs text-slate-400">조회 전용</span>
+                        <span className="text-xs text-slate-400">조회만 가능</span>
                       )}
                     </td>
                   </tr>
@@ -102,7 +102,7 @@ export default function UsersAdmin() {
         <Dialog open={currentUser?.role === "admin" && isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>사용자 권한 설정</DialogTitle>
+              <DialogTitle>구성원 권한 및 소속 설정</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 pt-4">
               <div className="space-y-2">
@@ -112,9 +112,9 @@ export default function UsersAdmin() {
                   onChange={e => setFormData({...formData, role: e.target.value as any})}
                   className="w-full px-3 py-2 border rounded-md"
                 >
-                  <option value="member">일반 멤버 (Member)</option>
-                  <option value="leader">부서장 (Leader)</option>
-                  <option value="admin">최고 관리자 (Admin)</option>
+                  <option value="member">구성원</option>
+                  <option value="leader">조직 리더</option>
+                  <option value="admin">시스템 관리자</option>
                 </select>
               </div>
               <div className="space-y-2">

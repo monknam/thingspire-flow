@@ -90,7 +90,7 @@ export default function SurveyRespond() {
       responseId: responseData.id,
       data: { answers: getAnswersPayload() }
     });
-    toast({ title: "임시저장 완료", description: "응답이 저장되었습니다." });
+      toast({ title: "임시 저장 완료", description: "현재까지의 응답이 저장되었습니다." });
     refetch();
   };
 
@@ -105,7 +105,7 @@ export default function SurveyRespond() {
     });
 
     if (missing) {
-      toast({ variant: "destructive", title: "필수 항목 누락", description: "모든 필수 항목에 응답해주세요." });
+      toast({ variant: "destructive", title: "필수 항목 누락", description: "필수 문항에 모두 응답해주세요." });
       return;
     }
 
@@ -137,15 +137,15 @@ export default function SurveyRespond() {
     );
 
     if (missing) {
-      toast({ variant: "destructive", title: "제출 실패", description: "작성하지 않은 필수 항목이 있습니다. 이전 섹션을 확인해주세요." });
+      toast({ variant: "destructive", title: "제출 실패", description: "작성하지 않은 필수 문항이 있습니다. 이전 섹션을 확인해주세요." });
       return;
     }
 
-    if (confirm("설문을 최종 제출하시겠습니까? 제출 후에는 수정할 수 없습니다.")) {
+    if (confirm("진단 응답을 최종 제출하시겠습니까? 제출 후에는 수정할 수 없습니다.")) {
       try {
         await saveMutation.mutateAsync({ responseId: responseData.id, data: { answers: getAnswersPayload() } });
         await submitMutation.mutateAsync({ responseId: responseData.id });
-        toast({ title: "제출 완료", description: "설문 참여에 감사드립니다." });
+        toast({ title: "제출 완료", description: "내부 진단 참여에 감사드립니다." });
         setLocation(`/surveys`);
       } catch {
         toast({ variant: "destructive", title: "오류", description: "제출 중 문제가 발생했습니다." });
@@ -247,7 +247,7 @@ export default function SurveyRespond() {
                     <textarea
                       value={localAnswers[q.id]?.text || ''}
                       onChange={(e) => handleAnswerChange(q.id, 'long_text', e.target.value)}
-                      placeholder="상세한 의견을 들려주시면 큰 도움이 됩니다. (생략 가능)"
+                      placeholder="우리 조직의 개선에 도움이 되도록 의견을 남겨주세요. (생략 가능)"
                       rows={4}
                       className="ts-input resize-y"
                     />
@@ -276,7 +276,7 @@ export default function SurveyRespond() {
               disabled={saveMutation.isPending}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-[hsl(var(--neutral-500))] hover:bg-[hsl(var(--neutral-100))] transition-colors disabled:opacity-50"
             >
-              <Save className="w-4 h-4" /> 임시저장
+              <Save className="w-4 h-4" /> 임시 저장
             </button>
 
             {isLastSection ? (
@@ -285,7 +285,7 @@ export default function SurveyRespond() {
                 disabled={submitMutation.isPending || saveMutation.isPending}
                 className="ts-btn-primary flex items-center gap-2 px-7 py-2.5 text-sm"
               >
-                <Check className="w-4 h-4" /> 최종 제출
+                <Check className="w-4 h-4" /> 응답 제출
               </button>
             ) : (
               <button

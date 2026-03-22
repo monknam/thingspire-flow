@@ -45,8 +45,8 @@ export function Shell({ children }: ShellProps) {
 
   if (!user) return null;
 
-  const isAdmin = user.role === 'admin';
-  const isLeader = user.role === 'admin' || user.role === 'leader';
+  const isAdmin = user.role === "admin";
+  const isLeader = user.role === "admin" || user.role === "leader";
 
   const navSections: NavSection[] = [
     {
@@ -55,27 +55,27 @@ export function Shell({ children }: ShellProps) {
       ],
     },
     {
-      title: "진단 & 평가",
+      title: "조직 진단",
       items: [
         { href: "/surveys", label: "조직문화 진단", icon: ClipboardList, show: true },
-        { href: "/admin/results", label: "진단 결과 분석", icon: BarChart3, show: isLeader },
-        { href: "#", label: "360 다면평가", icon: Users2, show: true, comingSoon: true },
-        { href: "#", label: "성과 평가", icon: Award, show: true, comingSoon: true },
+        { href: "/admin/results", label: "조직 진단 리포트", icon: BarChart3, show: isLeader },
+        { href: "#", label: "사내 360 피드백", icon: Users2, show: true, comingSoon: true },
+        { href: "#", label: "성과 점검", icon: Award, show: true, comingSoon: true },
       ],
     },
     {
-      title: "목표 & 과제",
+      title: "실행 관리",
       items: [
-        { href: "#", label: "목표 관리 (OKR)", icon: Target, show: true, comingSoon: true },
+        { href: "#", label: "목표 정렬", icon: Target, show: true, comingSoon: true },
         { href: "#", label: "과제 관리", icon: Kanban, show: true, comingSoon: true },
       ],
     },
     {
-      title: "시스템 관리",
+      title: "운영 설정",
       items: [
-        { href: "/admin/surveys", label: "설문 관리", icon: Settings, show: isAdmin },
-        { href: "/admin/users", label: "사용자 관리", icon: Users, show: isAdmin },
-        { href: "/admin/departments", label: "조직 관리", icon: Building2, show: isAdmin },
+        { href: "/admin/surveys", label: "진단 운영", icon: Settings, show: isAdmin },
+        { href: "/admin/users", label: "구성원 관리", icon: Users, show: isAdmin },
+        { href: "/admin/departments", label: "조직 구조 관리", icon: Building2, show: isAdmin },
       ],
     },
   ];
@@ -84,17 +84,15 @@ export function Shell({ children }: ShellProps) {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      {/* Logo */}
       <div className="px-6 py-6 border-b border-white/10">
         <Link href="/" onClick={closeMenu}>
           <BrandLogo showCaption className="align-middle" />
         </Link>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-4 py-3 overflow-y-auto">
         {navSections
-          .filter(section => section.items.some(item => item.show))
+          .filter((section) => section.items.some((item) => item.show))
           .map((section, si) => (
             <div key={section.title ?? "__home__"} className={si > 0 ? "mt-1" : ""}>
               {section.title && (
@@ -104,7 +102,7 @@ export function Shell({ children }: ShellProps) {
               )}
               <div className="space-y-0.5">
                 {section.items
-                  .filter(item => item.show)
+                  .filter((item) => item.show)
                   .map((item) => {
                     if (item.comingSoon) {
                       return (
@@ -115,7 +113,7 @@ export function Shell({ children }: ShellProps) {
                           <item.icon className="w-4 h-4 shrink-0 text-[hsl(var(--neutral-400))]" />
                           <span className="flex-1 text-[hsl(var(--neutral-300))]">{item.label}</span>
                           <span className="text-[10px] font-semibold bg-white/10 text-white/60 px-1.5 py-0.5 rounded-sm leading-none">
-                            Soon
+                            준비 중
                           </span>
                         </div>
                       );
@@ -152,7 +150,6 @@ export function Shell({ children }: ShellProps) {
           ))}
       </nav>
 
-      {/* User + Logout */}
       <div className="px-4 py-5 border-t border-white/10 space-y-2">
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/8">
           <div className="w-9 h-9 rounded-full bg-[hsl(var(--primary-400))] flex items-center justify-center font-bold text-white text-sm shrink-0">
@@ -161,7 +158,7 @@ export function Shell({ children }: ShellProps) {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white truncate">{user.fullName || "사용자"}</p>
             <p className="text-xs text-[hsl(var(--neutral-400))] truncate">
-              {user.role === 'admin' ? '관리자' : user.role === 'leader' ? '리더' : '구성원'}
+              {user.role === "admin" ? "관리자" : user.role === "leader" ? "리더" : "구성원"}
             </p>
           </div>
         </div>
@@ -178,7 +175,6 @@ export function Shell({ children }: ShellProps) {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[hsl(var(--neutral-50))]">
-      {/* Mobile Header */}
       <header className="md:hidden flex items-center justify-between px-5 py-4 bg-[hsl(var(--neutral-900))] sticky top-0 z-40">
         <Link href="/" onClick={closeMenu}>
           <BrandLogo compact showCaption />
@@ -188,12 +184,10 @@ export function Shell({ children }: ShellProps) {
         </button>
       </header>
 
-      {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 shrink-0 bg-[hsl(var(--neutral-900))] flex-col sticky top-0 h-screen">
         <SidebarContent />
       </aside>
 
-      {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -217,7 +211,6 @@ export function Shell({ children }: ShellProps) {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
       <main className="flex-1 min-w-0 min-h-screen">
         <div className="px-5 py-8 md:px-10 max-w-6xl mx-auto w-full">
           {children}

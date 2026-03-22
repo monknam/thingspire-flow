@@ -126,6 +126,32 @@
 
 ### Completed
 
+- Completed a broader frontend wording pass for internal-use positioning across admin and survey participation screens
+  - admin user/department pages now read as internal operations screens rather than generic SaaS admin pages
+  - survey intro/respond flows now emphasize internal diagnosis participation, confidentiality, and internal improvement use
+  - `artifacts/thingspire-flow/src/pages/admin/users.tsx`
+  - `artifacts/thingspire-flow/src/pages/admin/departments.tsx`
+  - `artifacts/thingspire-flow/src/pages/surveys/intro.tsx`
+  - `artifacts/thingspire-flow/src/pages/surveys/respond.tsx`
+- Refined frontend wording further to reduce external SaaS tone and emphasize internal organizational use
+  - login copy now reads as an internal system entry point
+  - dashboard, survey list, and results wording now explicitly reference internal organizational use
+  - upcoming module labels were adjusted to read less like generic SaaS navigation
+  - `artifacts/thingspire-flow/src/pages/login.tsx`
+  - `artifacts/thingspire-flow/src/components/layout/Shell.tsx`
+  - `artifacts/thingspire-flow/src/pages/dashboard.tsx`
+  - `artifacts/thingspire-flow/src/pages/surveys/index.tsx`
+  - `artifacts/thingspire-flow/src/pages/results/dashboard.tsx`
+- Updated core UI wording to align the product with an integrated organizational operations system instead of a survey-only tool
+  - reframed login messaging around organizational diagnosis and improvement
+  - renamed sidebar/navigation items toward diagnosis, operations, and execution language
+  - updated dashboard and survey list copy to position surveys as organizational diagnosis workflows
+  - updated results dashboard wording and added an explicit anonymity/non-punitive interpretation notice
+  - `artifacts/thingspire-flow/src/pages/login.tsx`
+  - `artifacts/thingspire-flow/src/components/layout/Shell.tsx`
+  - `artifacts/thingspire-flow/src/pages/dashboard.tsx`
+  - `artifacts/thingspire-flow/src/pages/surveys/index.tsx`
+  - `artifacts/thingspire-flow/src/pages/results/dashboard.tsx`
 - Pre-filled the login screen with the local admin credentials for faster local testing
   - default email: `admin@thingspire.com`
   - default password: `admin1234`
@@ -163,3 +189,15 @@
   - `project-docs/03_rules.md`
 - Switched local frontend env from mock auth mode to Supabase mode using the provided project URL and publishable key
   - `artifacts/thingspire-flow/.env.local`
+
+### Remaining Issues
+
+- Some secondary pages may still contain survey-first or admin-centric wording
+- Local development credential autofill behavior still exists even though the user-facing wording is now less demo-oriented
+- The UI messaging now better reflects the product philosophy, but the backend architecture is still in a migration state
+
+### Recommended Next Task
+
+- Continue with a page-by-page wording and IA pass for survey intro/respond, admin screens, and remaining empty/error states
+- Updated login screen copy to frame the application as an integrated organizational operations platform, aligning with product vision
+  - `artifacts/thingspire-flow/src/pages/login.tsx`
