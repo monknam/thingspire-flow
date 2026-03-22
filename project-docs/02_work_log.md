@@ -248,3 +248,61 @@
 - 배포된 앱에서 설문 참여 플로우 E2E 테스트 (로그인 → 설문 목록 → 소개 → 응답 → 제출)
 - profiles 테이블에 auth.users 기반 데이터 populate SQL 실행 확인
 - 결과 분석 대시보드를 Supabase 직접 쿼리로 전환
+
+## 2026-03-22 (Session 3)
+
+### Completed
+
+- 버전 태깅 컨벤션 수립 및 첫 릴백 기준점 태그 생성
+  - `git tag -a v0.3.0 -m "Supabase migration + survey flow + Vercel deploy"` (efadfba 커밋 기준)
+  - 이후 배포 전 `git tag -a vX.Y.Z -m "..."` 로 관리
+- 설문 UX: 프로필 성격 질문 (직무, 근무연수 등 자유 입력) 비활성화 전략 수립
+  - `project-docs/sql/03_disable_profile_questions.sql` — short_text 프로필 질문 is_active=false UPDATE
+  - profiles 테이블에 job_group / tenure_group 컬럼 추가 예정 → 어드민이 관리
+  - 정성 long_text 질문(섹션 마지막부)은 유지 및 강화
+- SQL 스크립트 정비 (project-docs/sql/ 디렉터리 신설)
+  - `01_profiles_extend.sql` — profiles에 job_group/tenure_group 추가 + auth.users 동기화
+  - `02_action_items_table.sql` — action_items 테이블 + RLS 생성
+  - `03_disable_profile_questions.sql` — 프로필 질문 비활성화
+- Express API 의존성 완전 제거 — 결과 대시보드 Supabase 전환
+  - `useSurveyDashboard` → Supabase 직접 집계 (섹션·질문 avg, 부서별 응답률)
+  - `useQualitative` → Supabase 직접 long_text 답변 수집
+  - `useGroupComparison` → profiles.job_group 기반 그룹 집계 (Supabase)
+  - `useActionItems`, `useCreateActionItem`, `useUpdateActionItem`, `useDeleteActionItem` → action_items 테이블 직접 CRUD
+  - `artifacts/thingspire-flow/src/hooks/use-dashboard.ts`
+- admin 설문 관리 페이지 Supabase 전환
+  - `useUpdateSurvey`, `useActivateSurvey`, `useCloseSurvey`, `useCreateSection`, `useCreateQuestion` 훅 신규 추가
+  - `artifacts/thingspire-flow/src/hooks/use-surveys.ts`
+  - `artifacts/thingspire-flow/src/pages/admin/surveys/edit.tsx` — `@workspace/api-client-react` 의존성 완전 제거
+- 결과 대시보드 useGetSurveys import 교체
+  - `artifacts/thingspire-flow/src/pages/results/dashboard.tsx`
+- 프론트엔드 typecheck 통과, production build 통과
+
+### DB 작업 (Supabase SQL Editor에서 실행 필요)
+
+아래 SQL을 **순서대로** Supabase SQL Editor에서 실행해야 기능이 정상 작동합니다:
+
+1. `project-docs/sql/01_profiles_extend.sql` — profiles 확장 + auth.users 동기화
+2. `project-docs/sql/02_action_items_table.sql` — action_items 테이블 생성
+3. `project-docs/sql/03_disable_profile_questions.sql` — 설문 프로필 질문 비활성화
+
+### Current Architecture
+
+- Frontend: Vercel (React 19 + Vite), **Express API 의존성 없음**
+- Auth: Supabase Auth (JWT)
+- 모든 데이터: Supabase 직접 쿼리
+- DB: Supabase PostgreSQL (wxtaepqveqrimjaauidd)
+
+### Remaining Issues
+
+- Supabase SQL 3개 파일 실행 대기 (로컬에서 직접 실행 필요)
+- profiles.job_group 데이터가 없으면 그룹 비교 탭은 "데이터 없음" 상태로 표시됨
+  - 어드민 UI에서 각 구성원의 job_group을 설정하거나 SQL로 일괄 업데이트 필요
+- 배포된 앱 E2E 테스트 미완료
+
+### Recommended Next Task
+
+- Supabase SQL 3개 파일 순서대로 실행
+- 배포된 앱 E2E 테스트 (로그인 → 설문 → 제출)
+- profiles.job_group 데이터 일괄 업데이트 SQL 작성 (직군 분류 후)
+- 어드민 사용자 관리 페이지에서 job_group 편집 기능 추가 검토

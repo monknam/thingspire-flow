@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth, useProtectedRoute } from "@/hooks/use-auth";
 import { Shell } from "@/components/layout/Shell";
-import { useGetSurveys } from "@workspace/api-client-react";
+import { useGetSurveys } from "@/hooks/use-surveys";
 import {
   useSurveyDashboard, useQualitative, useActionItems,
   useCreateActionItem, useUpdateActionItem, useDeleteActionItem,

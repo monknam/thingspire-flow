@@ -249,3 +249,133 @@ export function useSubmitResponse() {
     },
   });
 }
+
+// ── Admin Mutations ─────────────────────────────────────────
+
+export function useUpdateSurvey() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<{
+        title: string;
+        description: string;
+        introTitle: string;
+        introPurpose: string;
+        introDirection: string;
+        introConfidentiality: string;
+        introGuide: string;
+      }>;
+    }) => {
+      const row: Record<string, unknown> = {};
+      if (data.title !== undefined) row.title = data.title;
+      if (data.description !== undefined) row.description = data.description;
+      if (data.introTitle !== undefined) row.intro_title = data.introTitle;
+      if (data.introPurpose !== undefined) row.intro_purpose = data.introPurpose;
+      if (data.introDirection !== undefined) row.intro_direction = data.introDirection;
+      if (data.introConfidentiality !== undefined) row.intro_confidentiality = data.introConfidentiality;
+      if (data.introGuide !== undefined) row.intro_guide = data.introGuide;
+
+      const { error } = await supabase!.from("survey_cycles").update(row).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: ["surveys", id] });
+      void queryClient.invalidateQueries({ queryKey: ["surveys"] });
+    },
+  });
+}
+
+export function useActivateSurvey() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { error } = await supabase!
+        .from("survey_cycles")
+        .update({ status: "active", start_at: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: ["surveys", id] });
+      void queryClient.invalidateQueries({ queryKey: ["surveys"] });
+    },
+  });
+}
+
+export function useCloseSurvey() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { error } = await supabase!
+        .from("survey_cycles")
+        .update({ status: "closed", end_at: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: ["surveys", id] });
+      void queryClient.invalidateQueries({ queryKey: ["surveys"] });
+    },
+  });
+}
+
+export function useCreateSection() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      surveyId,
+      data,
+    }: {
+      surveyId: string;
+      data: { name: string; description?: string; sortOrder: number };
+    }) => {
+      const { error } = await supabase!.from("survey_sections").insert({
+        survey_cycle_id: surveyId,
+        name: data.name,
+        description: data.description ?? null,
+        sort_order: data.sortOrder,
+      });
+      if (error) throw error;
+    },
+    onSuccess: (_, { surveyId }) => {
+      void queryClient.invalidateQueries({ queryKey: ["surveys", surveyId] });
+    },
+  });
+}
+
+export function useCreateQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      sectionId,
+      surveyId,
+      data,
+    }: {
+      sectionId: string;
+      surveyId: string;
+      data: {
+        questionText: string;
+        questionType: "likert_5" | "short_text" | "long_text";
+        isRequired: boolean;
+        sortOrder: number;
+      };
+    }) => {
+      const { error } = await supabase!.from("survey_questions").insert({
+        survey_section_id: sectionId,
+        question_text: data.questionText,
+        question_type: data.questionType,
+        is_required: data.isRequired,
+        sort_order: data.sortOrder,
+        is_active: true,
+      });
+      if (error) throw error;
+    },
+    onSuccess: (_, { surveyId }) => {
+      void queryClient.invalidateQueries({ queryKey: ["surveys", surveyId] });
+    },
+  });
+}
