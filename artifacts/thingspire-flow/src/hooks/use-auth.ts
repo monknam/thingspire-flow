@@ -30,6 +30,22 @@ const AUTH_SESSION_QUERY_KEY = ["auth", "session"] as const;
 const AUTH_USER_QUERY_KEY = ["auth", "user"] as const;
 const LEGACY_AUTH_USER_QUERY_KEY = ["auth", "legacy-user"] as const;
 const DEV_AUTH_STORAGE_KEY = "thingspire.dev-auth-user";
+const ROLE_OVERRIDE_KEY = "thingspire.role-override";
+
+// 로그인 시 역할 선택 화면을 거쳐야 하는 계정 목록
+const MULTI_ROLE_EMAILS = ["nam@thingspire.com"];
+
+export function setRoleOverride(role: AppProfile["role"]) {
+  try { sessionStorage.setItem(ROLE_OVERRIDE_KEY, role); } catch { /* noop */ }
+}
+
+function getRoleOverride(): AppProfile["role"] | null {
+  try { return sessionStorage.getItem(ROLE_OVERRIDE_KEY) as AppProfile["role"] | null; } catch { return null; }
+}
+
+function clearRoleOverride() {
+  try { sessionStorage.removeItem(ROLE_OVERRIDE_KEY); } catch { /* noop */ }
+}
 
 interface LegacyAuthUser {
   id: string;
@@ -280,7 +296,16 @@ export function useAuth() {
       await queryClient.invalidateQueries({ queryKey: AUTH_SESSION_QUERY_KEY });
       await queryClient.invalidateQueries({ queryKey: AUTH_USER_QUERY_KEY });
       await queryClient.invalidateQueries({ queryKey: LEGACY_AUTH_USER_QUERY_KEY });
-      setLocation("/");
+
+      // 멀티롤 계정은 역할 선택 화면으로
+      const loginEmail = hasSupabaseEnv
+        ? (data as { user?: { email?: string } })?.user?.email
+        : (data as LegacyAuthUser)?.email;
+      if (loginEmail && MULTI_ROLE_EMAILS.includes(loginEmail)) {
+        setLocation("/role-select");
+      } else {
+        setLocation("/");
+      }
       toast({ title: "로그인 성공", description: "환영합니다." });
     },
     onError: (error: Error) => {
@@ -294,6 +319,7 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
+      clearRoleOverride();
       if (!hasSupabaseEnv) {
         try {
           await legacyFetch("/api/auth/logout", { method: "POST" });
@@ -327,7 +353,9 @@ export function useAuth() {
   const isLoading = hasSupabaseEnv
     ? sessionQuery.isLoading || (sessionQuery.data?.user ? userQuery.isLoading : false)
     : legacyUserQuery.isLoading;
-  const user = hasSupabaseEnv ? userQuery.data ?? null : legacyUserQuery.data ?? null;
+  const rawUser = hasSupabaseEnv ? userQuery.data ?? null : legacyUserQuery.data ?? null;
+  const roleOverride = getRoleOverride();
+  const user = rawUser && roleOverride ? { ...rawUser, role: roleOverride } : rawUser;
   const isAuthenticated = hasSupabaseEnv ? !!sessionQuery.data?.user : !!legacyUserQuery.data;
 
   return {

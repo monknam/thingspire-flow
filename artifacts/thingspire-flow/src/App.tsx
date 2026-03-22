@@ -14,6 +14,7 @@ import SurveyEdit from "@/pages/admin/surveys/edit";
 import UsersAdmin from "@/pages/admin/users";
 import DepartmentsAdmin from "@/pages/admin/departments";
 import ResultsDashboard from "@/pages/results/dashboard";
+import RoleSelect from "@/pages/role-select";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,6 +29,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
+      <Route path="/role-select" component={RoleSelect} />
       
       {/* Member/Shared Routes */}
       <Route path="/" component={Dashboard} />
