@@ -58,7 +58,7 @@ export function Shell({ children }: ShellProps) {
       title: "조직 진단",
       items: [
         { href: "/surveys", label: "조직문화 진단", icon: ClipboardList, show: true },
-        { href: "/admin/results", label: "조직 진단 리포트", icon: BarChart3, show: isLeader },
+        { href: "/admin/results", label: "조직 진단 리포트", icon: BarChart3, show: false },
         { href: "#", label: "사내 360 피드백", icon: Users2, show: true, comingSoon: true },
         { href: "#", label: "성과 점검", icon: Award, show: true, comingSoon: true },
       ],
