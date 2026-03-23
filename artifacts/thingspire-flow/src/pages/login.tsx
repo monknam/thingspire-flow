@@ -22,18 +22,13 @@ export default function Login() {
             <BrandLogo showCaption />
           </Link>
 
-          <h2 className="text-3xl font-bold text-white leading-snug mb-4">
-            조직의 현재를<br />함께 읽고 개선합니다
+          <h2 className="text-2xl font-bold text-white leading-snug mb-4">
+            띵스파이어의 현재를<br />함께 읽고 개선합니다
           </h2>
-          <p className="text-[hsl(var(--neutral-400))] text-sm leading-relaxed mb-6">
-            방향성, 실행력, 협업, 신뢰, 분위기를 데이터로 파악하고
-            진단 결과를 실제 개선 과제와 다음 행동으로 연결합니다.
-          </p>
-          <p className="text-[hsl(var(--neutral-500))] text-xs leading-relaxed border-t border-white/10 pt-6">
-            목표관리, 조직문화 진단, 평가를 통합해 회사의 방향성과
-            구성원 개인의 성장을 정렬하는 시스템입니다.
-            띵스파이어의 현재를 함께 진단하고,
-            더 나은 내일을 함께 만들어 갑니다.
+          <p className="text-[hsl(var(--neutral-400))] text-sm leading-relaxed">
+            방향성, 실행력, 협업, 신뢰, 분위기를 데이터로 파악하고 진단 결과를 실제 개선 과제와 다음 행동으로 연결하고자 합니다.
+            <br /><br />
+            'Align'은 목표관리, 조직문화 진단, 평가를 통합해 회사의 방향성과 구성원 개인의 성장을 정렬하는 시스템입니다. 띵스파이어의 더 나은 내일을 함께 만들어 갑니다.
           </p>
         </div>
 
