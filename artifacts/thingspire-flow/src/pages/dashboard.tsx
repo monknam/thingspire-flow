@@ -66,7 +66,7 @@ export default function Dashboard() {
                   <BarChart3 className="w-4 h-4 text-[hsl(var(--primary-400))]" />
                   현재 진행 중인 조직 진단
                 </h2>
-                {(user?.role === "admin" || user?.role === "leader") && (
+                {user?.role === "admin" && (
                   <Link
                     href="/admin/results"
                     className="text-xs font-medium text-[hsl(var(--primary-400))] hover:underline flex items-center gap-1"
@@ -107,7 +107,7 @@ export default function Dashboard() {
                           <p className="text-sm font-semibold text-[hsl(var(--neutral-700))]">{survey.submittedCount} / {survey.totalEligible}</p>
                         </div>
                         <Link
-                          href={user?.role === "member" ? `/surveys/${survey.id}/intro` : `/admin/results`}
+                          href={user?.role === "admin" ? `/admin/results` : `/surveys/${survey.id}/intro`}
                           className="w-9 h-9 rounded-lg bg-[hsl(var(--primary-50))] text-[hsl(var(--primary-400))] hover:bg-[hsl(var(--primary-400))] hover:text-white transition-colors flex items-center justify-center"
                         >
                           <ArrowRight className="w-4 h-4" />
