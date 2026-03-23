@@ -17,6 +17,8 @@ import {
   Target,
   Kanban,
   Award,
+  Flag,
+  UserCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
@@ -55,19 +57,31 @@ export function Shell({ children }: ShellProps) {
       ],
     },
     {
-      title: "조직 진단",
+      title: "조직진단",
       items: [
-        { href: "/surveys", label: "조직문화 진단", icon: ClipboardList, show: true },
-        { href: "/admin/results", label: "조직 진단 리포트", icon: BarChart3, show: false },
-        { href: "#", label: "사내 360 피드백", icon: Users2, show: true, comingSoon: true },
-        { href: "#", label: "성과 점검", icon: Award, show: true, comingSoon: true },
+        { href: "/surveys", label: "조직 진단 설문", icon: ClipboardList, show: true },
+        { href: "#", label: "진단 리포트", icon: BarChart3, show: true, comingSoon: true },
+        { href: "#", label: "360도 피드백", icon: Users2, show: true, comingSoon: true },
       ],
     },
     {
-      title: "실행 관리",
+      title: "성과평가",
       items: [
-        { href: "#", label: "목표 정렬", icon: Target, show: true, comingSoon: true },
-        { href: "#", label: "과제 관리", icon: Kanban, show: true, comingSoon: true },
+        { href: "#", label: "조직평가", icon: Award, show: true, comingSoon: true },
+        { href: "#", label: "개인평가", icon: UserCheck, show: true, comingSoon: true },
+      ],
+    },
+    {
+      title: "목표정렬",
+      items: [
+        { href: "#", label: "조직목표", icon: Target, show: true, comingSoon: true },
+        { href: "#", label: "개인목표", icon: Flag, show: true, comingSoon: true },
+      ],
+    },
+    {
+      title: "과제관리",
+      items: [
+        { href: "#", label: "과제관리", icon: Kanban, show: true, comingSoon: true },
       ],
     },
     {
