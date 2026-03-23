@@ -29,7 +29,7 @@ export function BrandLogo({
             captionClassName,
           )}
         >
-          Flow
+          Align
         </span>
       ) : null}
     </div>
