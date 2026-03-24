@@ -69,49 +69,58 @@ ALTER TABLE evaluation_scores      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE evaluation_comments    ENABLE ROW LEVEL SECURITY;
 
 -- evaluation_cycles: admin 읽기, is_system_admin 쓰기
+DROP POLICY IF EXISTS "eval_cycles_read_admin" ON evaluation_cycles;
 CREATE POLICY "eval_cycles_read_admin" ON evaluation_cycles
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+DROP POLICY IF EXISTS "eval_cycles_write_ceo" ON evaluation_cycles;
 CREATE POLICY "eval_cycles_write_ceo" ON evaluation_cycles
   FOR ALL USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND is_system_admin = TRUE)
   );
 
 -- employee_evaluations: admin 읽기, is_system_admin 쓰기
+DROP POLICY IF EXISTS "emp_eval_read_admin" ON employee_evaluations;
 CREATE POLICY "emp_eval_read_admin" ON employee_evaluations
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+DROP POLICY IF EXISTS "emp_eval_write_ceo" ON employee_evaluations;
 CREATE POLICY "emp_eval_write_ceo" ON employee_evaluations
   FOR UPDATE USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND is_system_admin = TRUE)
   );
 
+DROP POLICY IF EXISTS "emp_eval_insert_ceo" ON employee_evaluations;
 CREATE POLICY "emp_eval_insert_ceo" ON employee_evaluations
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND is_system_admin = TRUE)
   );
 
 -- evaluation_scores: admin 읽기, is_system_admin 쓰기
+DROP POLICY IF EXISTS "eval_scores_read_admin" ON evaluation_scores;
 CREATE POLICY "eval_scores_read_admin" ON evaluation_scores
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+DROP POLICY IF EXISTS "eval_scores_write_ceo" ON evaluation_scores;
 CREATE POLICY "eval_scores_write_ceo" ON evaluation_scores
   FOR ALL USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND is_system_admin = TRUE)
   );
 
 -- evaluation_comments: admin 읽기, is_system_admin 쓰기
+DROP POLICY IF EXISTS "eval_comments_read_admin" ON evaluation_comments;
 CREATE POLICY "eval_comments_read_admin" ON evaluation_comments
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+DROP POLICY IF EXISTS "eval_comments_write_ceo" ON evaluation_comments;
 CREATE POLICY "eval_comments_write_ceo" ON evaluation_comments
   FOR ALL USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin' AND is_system_admin = TRUE)

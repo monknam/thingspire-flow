@@ -1,5 +1,63 @@
 # Work Log
 
+## 2026-03-24 (Session 5)
+
+### Completed
+
+- **2025 정기 인사평가 데이터 Supabase 임포트 완료**
+  - CSV 3개 파일 파싱 (인적정보_DB.csv, 직책자평가_DB.csv, 팀원평가_DB.csv) → Python 스크립트로 변환
+  - `project-docs/sql/05_evaluation_seed.sql` 생성 (790줄):
+    - evaluation_cycles: "2025 정기 인사평가" 사이클 1건
+    - employee_evaluations: 32명 전원 (CEO조정점수·등급·진행상태·업무성과 포함)
+    - evaluation_scores: 직책자 7명 × 7항목 (목표달성, 업무기여, 완성도, 리더십, 성과관리, 소통, 기업관) 수치 점수
+    - evaluation_scores: 팀원 18명 × 9항목 (근태, 교육, 책임감, 협조성, 성실성, 판단력, 기획력, 전문성, 성과KPI) 문자등급(S/A+/A-/B+/B-) → 수치(5.0~1.5) 변환
+  - 등급 매핑: 고성과자→A, 일반→B, 저성과자→D
+  - `supabase/migrations/20260324000005_evaluation_seed.sql`로 등록 → `supabase db push --linked`로 원격 DB 적용 완료
+  - TypeScript 타입 오류 없음 확인
+
+### Remaining Issues
+
+- **profiles.job_group 데이터** 미입력 — 그룹 비교 탭 빈 상태 유지 중
+- **배포 앱 E2E 테스트** 미완료
+
+### Recommended Next Task
+
+1. 배포된 앱 E2E 테스트: /admin/performance 접속 → 인사평가 목록 → 개인 상세 → CEO 조정 저장
+2. profiles.job_group 데이터 입력 (직군별 비교 기능 활성화)
+
+---
+
+## 2026-03-24 (Session 4)
+
+### Completed
+
+- **미완 이슈 코드 수정**
+  - `01_profiles_extend.sql`: `is_system_admin`, `department_name`, `employment_status`, `employee_group` 컬럼 추가 — `use-auth.ts`에서 SELECT하는 모든 컬럼이 누락되어 있었음
+  - `04_evaluation_tables.sql`: `evaluation_cycles.org_id`의 `REFERENCES organizations(id)` FK 제거 — Supabase에 `organizations` 테이블이 없을 경우 SQL 실행 실패하는 문제 수정, nullable UUID로 변경
+  - `artifacts/thingspire-flow/src/pages/admin/performance/index.tsx`: URL 파라미터 `cycleId` 무시 버그 수정 — `/admin/performance/:cycleId` 라우트 진입 시 URL의 cycleId가 초기 선택 값으로 반영되도록 `Props` 인터페이스 및 `params` 수신 추가
+
+- **Supabase CLI 설치 + migration 실행 완료** (supabase db push --linked)
+  - `supabase/migrations/` 디렉토리 신설 + SQL 01~04 migration 파일 등록
+  - 01: profiles 컬럼 확장 (이미 적용됨 확인)
+  - 02: action_items 테이블 + RLS (테이블 이미 존재, 정책 재적용 완료)
+  - 03: 프로필 성격 설문 질문 비활성화
+  - 04: 성과평가 테이블 (evaluation_cycles, employee_evaluations, evaluation_scores, evaluation_comments) + RLS 생성
+  - 대표이사 계정(kwangjaecho@thingspire.com) is_system_admin = TRUE 설정 완료
+
+### Remaining Issues
+
+- **Google Sheets 데이터 → Supabase 마이그레이션** 미완료 (Phase 2)
+  - Google Sheets 3개 시트 CSV 내보내기 → Supabase `employee_evaluations`, `evaluation_scores` 임포트
+- **profiles.job_group 데이터** 미입력 — 그룹 비교 탭 빈 상태 유지 중
+- **배포 앱 E2E 테스트** 미완료
+
+### Recommended Next Task
+
+1. Google Sheets 3개 시트 CSV 내보내기 → Supabase 임포트
+2. 배포된 앱 E2E 테스트 (로그인 → 설문 참여 → 성과평가 열람)
+
+---
+
 ## 2026-03-24 (Session 3)
 
 ### Completed
