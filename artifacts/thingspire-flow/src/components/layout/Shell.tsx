@@ -67,8 +67,8 @@ export function Shell({ children }: ShellProps) {
     {
       title: "성과평가",
       items: [
-        { href: "#", label: "조직평가", icon: Award, show: true, comingSoon: true },
-        { href: "#", label: "개인평가", icon: UserCheck, show: true, comingSoon: true },
+        { href: "/admin/performance", label: "인사평가 리뷰", icon: Award, show: isAdmin },
+        { href: "#", label: "개인평가", icon: UserCheck, show: isAdmin, comingSoon: true },
       ],
     },
     {

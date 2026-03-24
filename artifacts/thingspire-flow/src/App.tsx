@@ -15,6 +15,8 @@ import UsersAdmin from "@/pages/admin/users";
 import DepartmentsAdmin from "@/pages/admin/departments";
 import ResultsDashboard from "@/pages/results/dashboard";
 import RoleSelect from "@/pages/role-select";
+import PerformanceList from "@/pages/admin/performance/index";
+import PerformanceDetail from "@/pages/admin/performance/detail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +45,9 @@ function Router() {
       <Route path="/admin/surveys/:id/edit" component={SurveyEdit} />
       <Route path="/admin/users" component={UsersAdmin} />
       <Route path="/admin/departments" component={DepartmentsAdmin} />
+      <Route path="/admin/performance" component={PerformanceList} />
+      <Route path="/admin/performance/:cycleId" component={PerformanceList} />
+      <Route path="/admin/performance/:cycleId/:evalId" component={PerformanceDetail} />
 
       <Route component={NotFound} />
     </Switch>
