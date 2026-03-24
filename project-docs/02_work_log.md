@@ -1,5 +1,39 @@
 # Work Log
 
+## 2026-03-24 (Session 3)
+
+### Completed
+
+- **성과평가 모듈 Phase 1 구현** (GAS → Align 통합)
+  - `src/hooks/use-performance.ts`: EvaluationCycle, EmployeeEvaluation, EvaluationScore Supabase 훅
+  - `src/pages/admin/performance/index.tsx`: 직원 평가 현황 목록 화면 (요약 통계 + 진행률 바 + 테이블)
+  - `src/pages/admin/performance/detail.tsx`: 개인 상세 리뷰 화면 (항목별 점수 + CEO 조정 폼)
+  - `App.tsx`: `/admin/performance`, `/admin/performance/:cycleId`, `/admin/performance/:cycleId/:evalId` 라우트 등록
+  - `Shell.tsx`: 성과평가 > 인사평가 리뷰 메뉴 활성화 (admin 전용)
+- **권한 분리**
+  - admin: 전체 열람 가능
+  - is_system_admin = true (대표이사, kwangjaecho@thingspire.com): CEO 조정 점수·Grade·확정 입력 가능
+- **SQL 04_evaluation_tables.sql** 준비 (Supabase 실행 대기 중)
+  - evaluation_cycles, employee_evaluations, evaluation_scores, evaluation_comments 테이블
+  - RLS: admin 읽기, is_system_admin 쓰기
+  - 대표이사 계정 is_system_admin = true 설정 포함
+- **계획서 작성**: `project-docs/plan_performance_review_integration.md`
+- **Git 태그**: `v0.5.0` — Align 리브랜딩 + 네비 개편 완료 기준점
+
+### Remaining Issues
+
+- Supabase SQL 04 아직 미실행 — 테이블 없이 화면 접근 시 빈 상태로 표시됨
+- Google Sheets 데이터 → Supabase 마이그레이션 미완료 (Phase 2)
+- 평가 항목(evaluation_scores) 실제 데이터 입력 필요
+
+### Recommended Next Task
+
+1. Supabase SQL Editor에서 `04_evaluation_tables.sql` 실행
+2. Google Sheets 3개 시트 CSV 내보내기 → Supabase 임포트
+3. 데이터 확인 후 E2E 테스트
+
+---
+
 ## 2026-03-21
 
 ### Completed
@@ -126,6 +160,11 @@
 
 ### Completed
 
+- Changed survey profile-style questions from dropdown-style selection to clickable option buttons in the response UI
+  - `직무 유형` now uses fixed options: `개발`, `기획 / PM`, `경영관리`
+  - `근속 기간` uses fixed clickable tenure options
+  - fallback parsing for inline `▸` choice text remains for other short-text prompts
+  - `artifacts/thingspire-flow/src/pages/surveys/respond.tsx`
 - Updated survey response UX so non-qualitative short-text questions can be answered via selection instead of free typing when the prompt embeds choice options
   - the response screen now parses inline options from question text after `▸`
   - objective/profile-style short-text prompts render as dropdown selects with a `선택해주세요` placeholder
